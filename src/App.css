@@ -1,0 +1,673 @@
+/* =========================================
+   GLASS CEILING FITNESS
+   APP.CSS
+   ========================================= */
+
+/* ---------- GLOBAL ---------- */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: #f7f7f7;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f7f7f7;
+  color: #111111;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+
+/* =========================================
+   LOGIN SCREEN
+   ========================================= */
+
+.app-shell {
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  background:
+    linear-gradient(
+      120deg,
+      transparent 48%,
+      rgba(0, 0, 0, 0.05) 49%,
+      transparent 50%
+    ),
+    linear-gradient(
+      35deg,
+      transparent 48%,
+      rgba(0, 0, 0, 0.04) 49%,
+      transparent 50%
+    ),
+    #ffffff;
+
+  background-size:
+    110px 110px,
+    150px 150px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+
+  background: #ffffff;
+
+  border: 1px solid #d9d9d9;
+  border-radius: 18px;
+
+  padding: 32px;
+
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.logo-mark {
+  width: 64px;
+  height: 64px;
+
+  display: grid;
+  place-items: center;
+
+  margin: 0 auto 18px;
+
+  border-radius: 50%;
+
+  background: #111111;
+  color: #ffffff;
+
+  font-size: 28px;
+}
+
+.login-card h1 {
+  margin: 0;
+
+  text-align: center;
+
+  font-size: 34px;
+}
+
+.tagline {
+  margin: 8px 0 28px;
+
+  text-align: center;
+
+  color: #666666;
+}
+
+.login-card label {
+  display: block;
+
+  margin: 14px 0 6px;
+
+  font-weight: 700;
+}
+
+.login-card input {
+  width: 100%;
+
+  padding: 14px;
+
+  border: 1px solid #cfcfcf;
+  border-radius: 10px;
+
+  background: #ffffff;
+  color: #111111;
+}
+
+.login-card input:focus {
+  outline: 3px solid rgba(0, 0, 0, 0.12);
+
+  border-color: #111111;
+}
+
+.login-card button {
+  width: 100%;
+
+  margin-top: 20px;
+  padding: 14px;
+
+  border: none;
+  border-radius: 10px;
+
+  background: #111111;
+  color: #ffffff;
+
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.login-card button:hover {
+  background: #333333;
+}
+
+.demo-note {
+  margin-top: 14px;
+
+  text-align: center;
+
+  font-size: 13px;
+
+  color: #777777;
+}
+
+
+/* =========================================
+   MAIN DASHBOARD
+   ========================================= */
+
+.dashboard {
+  min-height: 100vh;
+
+  padding: 24px;
+
+  background:
+    linear-gradient(
+      120deg,
+      transparent 48%,
+      rgba(0, 0, 0, 0.035) 49%,
+      transparent 50%
+    ),
+    linear-gradient(
+      35deg,
+      transparent 48%,
+      rgba(0, 0, 0, 0.025) 49%,
+      transparent 50%
+    ),
+    #f8f8f8;
+
+  background-size:
+    150px 150px,
+    190px 190px;
+}
+
+
+/* =========================================
+   TOP NAVIGATION
+   ========================================= */
+
+.top-bar {
+  max-width: 1000px;
+
+  margin: 0 auto 24px;
+  padding: 18px 22px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 16px;
+
+  background: #ffffff;
+
+  border: 1px solid #dddddd;
+  border-radius: 16px;
+}
+
+.eyebrow {
+  margin: 0;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  letter-spacing: 3px;
+
+  color: #777777;
+}
+
+.top-bar h1 {
+  margin: 2px 0 0;
+
+  font-size: 28px;
+  font-weight: 900;
+
+  letter-spacing: 1px;
+}
+
+.sign-out {
+  padding: 10px 16px;
+
+  border: 1px solid #111111;
+  border-radius: 10px;
+
+  background: #ffffff;
+  color: #111111;
+
+  font-weight: 700;
+}
+
+.sign-out:hover {
+  background: #eeeeee;
+}
+
+
+/* =========================================
+   WELCOME AREA
+   ========================================= */
+
+.welcome {
+  max-width: 1000px;
+
+  margin: 0 auto 18px;
+}
+
+.welcome p {
+  margin: 0;
+
+  color: #666666;
+}
+
+.welcome h2 {
+  margin: 5px 0 0;
+
+  font-size: 30px;
+  line-height: 1.2;
+}
+
+
+/* =========================================
+   CARDS
+   ========================================= */
+
+.goal-card,
+.workout-card,
+.stat-card {
+  background: #ffffff;
+
+  border: 1px solid #dddddd;
+  border-radius: 16px;
+
+  padding: 22px;
+}
+
+.goal-card,
+.workout-card {
+  max-width: 1000px;
+
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.goal-card {
+  margin-bottom: 18px;
+}
+
+.workout-card {
+  margin-bottom: 18px;
+}
+
+.goal-card h3,
+.workout-card h3,
+.stat-card h3 {
+  margin: 4px 0;
+}
+
+
+/* =========================================
+   SMALL TEXT
+   ========================================= */
+
+.small-text {
+  margin: 0;
+
+  color: #666666;
+
+  font-size: 14px;
+}
+
+
+/* =========================================
+   WEEKLY GOAL
+   ========================================= */
+
+.goal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 16px;
+}
+
+.progress-track {
+  width: 100%;
+  height: 18px;
+
+  margin: 18px 0 10px;
+
+  overflow: hidden;
+
+  background: #e5e5e5;
+
+  border: 1px solid #d5d5d5;
+  border-radius: 999px;
+}
+
+.progress-fill {
+  width: 60%;
+  height: 100%;
+
+  background: #111111;
+
+  border-radius: 999px;
+}
+
+
+/* =========================================
+   STAT CARDS
+   ========================================= */
+
+.stats-grid {
+  max-width: 1000px;
+
+  margin: 0 auto 18px;
+
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 18px;
+}
+
+.stat-card p {
+  margin: 0;
+
+  color: #666666;
+}
+
+.stat-card h3 {
+  font-size: 28px;
+}
+
+
+/* =========================================
+   EXERCISE CATEGORY BUTTONS
+   ========================================= */
+
+.category-grid {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 10px;
+
+  margin-top: 18px;
+}
+
+.category-button {
+  min-height: 56px;
+
+  padding: 10px 14px;
+
+  border: 1px solid #cccccc;
+  border-radius: 10px;
+
+  background: #ffffff;
+  color: #111111;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+.category-button:hover {
+  background: #eeeeee;
+
+  border-color: #999999;
+}
+
+.category-button:active {
+  transform: scale(0.98);
+}
+
+.category-button:focus-visible {
+  outline: 3px solid #777777;
+
+  outline-offset: 2px;
+}
+
+
+/* Selected category */
+
+.active-category {
+  background: #111111;
+
+  color: #ffffff;
+
+  border-color: #111111;
+}
+
+.active-category:hover {
+  background: #333333;
+
+  color: #ffffff;
+}
+
+
+/* =========================================
+   EXERCISES
+   ========================================= */
+
+.exercise {
+  min-height: 65px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 14px 0;
+
+  border-bottom: 1px solid #eeeeee;
+}
+
+.exercise:last-of-type {
+  border-bottom: none;
+}
+
+.exercise span {
+  font-weight: 600;
+}
+
+.exercise button {
+  min-width: 90px;
+  min-height: 44px;
+
+  padding: 10px 14px;
+
+  border: 1px solid #111111;
+  border-radius: 10px;
+
+  background: #ffffff;
+  color: #111111;
+
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.exercise button:hover {
+  background: #111111;
+
+  color: #ffffff;
+}
+
+.exercise button:focus-visible {
+  outline: 3px solid #777777;
+
+  outline-offset: 2px;
+}
+
+
+/* =========================================
+   EMPTY WORKOUT MESSAGE
+   ========================================= */
+
+.empty-message {
+  margin: 0;
+
+  padding: 24px 0;
+
+  color: #777777;
+}
+
+
+/* =========================================
+   MAIN BUTTON
+   ========================================= */
+
+.main-button {
+  width: 100%;
+  min-height: 52px;
+
+  margin-top: 20px;
+  padding: 15px;
+
+  border: none;
+  border-radius: 10px;
+
+  background: #111111;
+  color: #ffffff;
+
+  font-weight: 800;
+  font-size: 16px;
+
+  cursor: pointer;
+}
+
+.main-button:hover {
+  background: #333333;
+}
+
+.main-button:focus-visible {
+  outline: 3px solid #777777;
+
+  outline-offset: 3px;
+}
+
+
+/* =========================================
+   GENERAL ACCESSIBILITY
+   ========================================= */
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid #555555;
+
+  outline-offset: 2px;
+}
+
+
+/* =========================================
+   TABLET
+   ========================================= */
+
+@media (max-width: 850px) {
+
+  .category-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+}
+
+
+/* =========================================
+   PHONE
+   ========================================= */
+
+@media (max-width: 700px) {
+
+  .dashboard {
+    padding: 14px;
+  }
+
+  .login-card {
+    padding: 24px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .category-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .goal-header {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+  .top-bar {
+    align-items: flex-start;
+  }
+
+  .welcome h2 {
+    font-size: 25px;
+  }
+
+  .exercise {
+    align-items: center;
+  }
+
+}
+
+
+/* =========================================
+   VERY SMALL PHONES
+   ========================================= */
+
+@media (max-width: 420px) {
+
+  .dashboard {
+    padding: 10px;
+  }
+
+  .goal-card,
+  .workout-card,
+  .stat-card {
+    padding: 17px;
+  }
+
+  .exercise {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .exercise button {
+    width: 100%;
+  }
+
+  .top-bar h1 {
+    font-size: 24px;
+  }
+
+}

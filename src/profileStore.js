@@ -7,6 +7,8 @@ export function readProfiles(storage) {
     return profiles.filter(profile => profile && typeof profile.id === 'string' &&
       typeof profile.name === 'string' && typeof profile.goal === 'string').map(profile => ({
         ...profile,
+        clientType: profile.clientType === 'youre-with-us' ? 'youre-with-us' : 'independent',
+        nutrition: typeof profile.nutrition === 'string' ? profile.nutrition : '',
         workout: Array.isArray(profile.workout) ? profile.workout.filter(item => item && typeof item.name === 'string') : [],
         completed: Array.isArray(profile.completed) ? profile.completed.filter(item => typeof item === 'string') : [],
         sessions: Number.isInteger(profile.sessions) && profile.sessions >= 0 ? profile.sessions : 0,

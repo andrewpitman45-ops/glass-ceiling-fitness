@@ -90,3 +90,14 @@ h1, h2, h3, p { margin-top: 0; }
 @media (max-width: 760px) { .app-shell { grid-template-columns: minmax(0, 1fr); gap: 28px; padding: 24px; } .entry-brand, .entry-footer { grid-column: 1; } .brand-caption { display: none; } .entry-hero { padding: 20px 0 0; } .entry-hero h1 { font-size: clamp(36px, 8vw, 56px); margin: 20px 0; } .hero-copy { font-size: 14px; max-width: 520px; } .hero-rule, .hero-pillars { display: none; } .login-card { width: 100%; max-width: 520px; justify-self: center; } .entry-footer { font-size: 9px; } .category-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .dashboard { padding: 24px 16px; } .top-bar { flex-wrap: wrap; margin-bottom: 28px; } .goal-card, .workout-card, .stat-card { padding: 20px; } }
 @media (max-width: 420px) { .app-shell { padding: 20px 16px; } .login-card { padding: 22px; } .hero-kicker { font-size: 9px; letter-spacing: 1.2px; } .entry-footer { flex-direction: column; gap: 8px; } .profile-nav { justify-content: flex-start; } .stats-grid { gap: 10px; } .stat-card { padding: 16px; } .stat-card p { font-size: 11px; } .category-grid { grid-template-columns: 1fr; } .builder-title { align-items: flex-start; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
+
+.trainer-credentials { color: var(--accent); font-size: 13px; margin-top: 20px; }
+.client-options { border: 0; padding: 0; margin: 20px 0 12px; }
+.client-options legend { font-size: 12px; font-weight: 650; }
+.profile-form .client-options label { display: flex; align-items: flex-start; gap: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 9px; cursor: pointer; margin: 8px 0; }
+.client-options label:has(input:checked) { border-color: var(--accent); background: #203c48; }
+.profile-form .client-options input { width: 18px; height: 18px; min-height: 18px; margin: 3px 0 0; accent-color: var(--accent); flex-shrink: 0; }
+.client-options small { display: block; color: var(--muted); font-weight: 400; margin-top: 4px; }
+.profile-form textarea { width: 100%; resize: vertical; font: inherit; min-height: 180px; border: 1px solid #3a5061; border-radius: 9px; padding: 14px; background: #091522; color: var(--text); }
+textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+.save-status { color: var(--accent); font-size: 13px; margin-top: 14px; }

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 import Brand from './Brand'
+import Nutrition from './Nutrition'
 import Profiles, { ProfileForm } from './Profiles'
 import { readProfiles, saveProfiles } from './profileStore'
 
@@ -213,10 +214,23 @@ function App() {
   const navigation = (
     <nav className="profile-nav" aria-label="Profile navigation">
       <button className="sign-out" onClick={() => setScreen('home')}>{profile.name}</button>
+      <button className="sign-out" onClick={() => setScreen('nutrition')}>Nutrition</button>
       <button className="sign-out" onClick={signOut}>Sign out</button>
     </nav>
   )
   const notice = storageError && <p className="storage-error" role="alert">{storageError}</p>
+
+  const supportedClient = profile.clientType === 'youre-with-us'
+
+  if (screen === 'nutrition') {
+    return <main className="dashboard">
+      <header className="top-bar"><Brand />{navigation}</header>
+      {notice}
+      <section className="welcome"><p>{supportedClient ? "You're With Us · Nutrition" : 'Independent · Nutrition'}</p><h2>Your nutrition plan</h2></section>
+      <Nutrition key={profile.id} profile={profile} onSave={nutrition => updateProfile({ nutrition })} />
+      <div className="welcome"><button className="secondary-button" onClick={() => setScreen('home')}>Back to my dashboard</button></div>
+    </main>
+  }
 
   if (screen === 'home' || screen === 'profile') {
     return (
@@ -226,7 +240,7 @@ function App() {
           {navigation}
         </header>
         {notice}
-        <section className="welcome"><p>Your space to grow</p><h2>Welcome, {profile.name}.</h2></section>
+        <section className="welcome"><p>{supportedClient ? "You're With Us · Disability-focused fitness" : 'Independent · Personal fitness'}</p><h2>Welcome, {profile.name}.</h2></section>
         {screen === 'profile' ? (
           <section className="workout-card">
             <h3>Edit profile</h3>
@@ -243,11 +257,19 @@ function App() {
               <section className="stat-card"><p>Exercises in your workout</p><h3>{workout.length}</h3></section>
             </div>
             <section className="workout-card">
-              <h3>Make your next move</h3>
-              <p className="small-text">Build a workout around your goals, one exercise at a time.</p>
+              <h3>Your customized fitness plan</h3>
+              <p className="small-text">{supportedClient ? 'Your abilities, comfort, and choices come first. Use this space to record the exercises and adjustments you agree on with your trainer.' : 'Build a routine around your goals, schedule, and preferences. Use this space to record your customized workout.'}</p>
+              <p className="demo-note">The exercise library is a starting point. Selecting a client pathway does not automatically adapt the exercises.</p>
               <button className="main-button" onClick={() => setScreen('builder')}>{workout.length ? 'Edit saved workout' : 'Build workout'}</button>
               {workout.length > 0 && <button className="secondary-button" onClick={() => setScreen('workout')}>Resume workout</button>}
             </section>
+            <section className="workout-card">
+              <p className="small-text">Nutrition</p>
+              <h3>Planning for everyday life</h3>
+              <p className="small-text">{supportedClient ? 'A separate space for meal routines, food preferences, and the practical support that works for you.' : 'Keep meal ideas and your personal nutrition plan alongside your fitness routine.'}</p>
+              <button className="main-button" onClick={() => setScreen('nutrition')}>{profile.nutrition ? 'View nutrition plan' : 'Start nutrition plan'}</button>
+            </section>
+            <p className="welcome trainer-credentials">Licensed &amp; insured NASM personal trainer · Your goals. Your pace.</p>
           </>
         )}
       </main>
@@ -542,7 +564,7 @@ function App() {
           </p>
 
           <h2>
-            Break Through
+            Move at Your Pace
           </h2>
 
         </section>

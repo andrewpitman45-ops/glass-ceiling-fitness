@@ -1,5 +1,7 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import './App.css'
+import Profiles, { ProfileForm } from './Profiles'
+import { readProfiles, saveProfiles } from './profileStore'
 
 const exerciseLibrary = {
   Cardio: [
@@ -82,8 +84,59 @@ const exerciseLibrary = {
 function App() {
   const [screen, setScreen] = useState('home')
   const [selectedCategory, setSelectedCategory] = useState('Cardio')
-  const [workout, setWorkout] = useState([])
-  const [completed, setCompleted] = useState([])
+  const [profiles, setProfiles] = useState(() => readProfiles())
+  const [activeId, setActiveId] = useState(null)
+  const [storageError, setStorageError] = useState('')
+  const profile = profiles.find(item => item.id === activeId)
+  const workout = profile?.workout || []
+  const completed = profile?.completed || []
+
+  function persist(next) {
+    try {
+      saveProfiles(window.localStorage, next)
+      setStorageError('')
+    } catch {
+      setStorageError('Changes could not be saved. Allow browser storage to keep your progress after closing this tab.')
+    }
+    setProfiles(next)
+  }
+
+  function updateProfile(changes) {
+    persist(profiles.map(item => item.id === activeId ? { ...item, ...changes } : item))
+  }
+
+  function setWorkout(next) {
+    updateProfile({ workout: next, completed: completed.filter(name => next.some(item => item.name === name)) })
+  }
+
+  function setCompleted(next) {
+    updateProfile({ completed: next })
+  }
+
+  function selectProfile(id) {
+    setActiveId(id)
+    setScreen('home')
+    setSelectedCategory('Cardio')
+  }
+
+  function saveDetails(details) {
+    if (profiles.some(item => item.id !== activeId && item.name.toLowerCase() === details.name.toLowerCase())) {
+      return 'A profile with this name already exists. Choose another name.'
+    }
+    if (profile) {
+      updateProfile(details)
+      setScreen('home')
+    } else {
+      const id = crypto.randomUUID()
+      persist([...profiles, { ...details, id, workout: [], completed: [], sessions: 0 }])
+      selectProfile(id)
+    }
+  }
+
+  function signOut() {
+    setActiveId(null)
+    setScreen('home')
+  }
 
   function addExercise(name) {
     const alreadyAdded = workout.some(
@@ -141,8 +194,7 @@ function App() {
   }
 
   function finishWorkout() {
-    setWorkout([])
-    setCompleted([])
+    updateProfile({ workout: [], completed: [], sessions: profile.sessions + 1 })
     setScreen('home')
   }
 
@@ -153,21 +205,51 @@ function App() {
           (completed.length / workout.length) * 100
         )
 
-  if (screen === 'home') {
+  if (!profile) {
+    return <Profiles profiles={profiles} onSelect={selectProfile} onCreate={saveDetails} />
+  }
+
+  const navigation = (
+    <nav className="profile-nav" aria-label="Profile navigation">
+      <button className="sign-out" onClick={() => setScreen('home')}>{profile.name}</button>
+      <button className="sign-out" onClick={signOut}>Sign out</button>
+    </nav>
+  )
+  const notice = storageError && <p className="storage-error" role="alert">{storageError}</p>
+
+  if (screen === 'home' || screen === 'profile') {
     return (
-      <div className="app-shell">
-        <div className="login-card">
-          <h1>Glass Ceiling Fitness</h1>
-
-          <p className="tagline">
-            Break barriers. Build strength.
-          </p>
-
-          <button onClick={() => setScreen('builder')}>
-            Build Workout
-          </button>
-        </div>
-      </div>
+      <main className="dashboard">
+        <header className="top-bar">
+          <div><p className="eyebrow">GLASS CEILING</p><h1>FITNESS</h1></div>
+          {navigation}
+        </header>
+        {notice}
+        <section className="welcome"><p>Your space to grow</p><h2>Welcome, {profile.name}.</h2></section>
+        {screen === 'profile' ? (
+          <section className="workout-card">
+            <h3>Edit profile</h3>
+            <ProfileForm profile={profile} onSave={saveDetails} onCancel={() => setScreen('home')} />
+          </section>
+        ) : (
+          <>
+            <section className="goal-card">
+              <p className="small-text">Your fitness goal</p><h3>{profile.goal}</h3>
+              <button className="secondary-button" onClick={() => setScreen('profile')}>Edit profile</button>
+            </section>
+            <div className="stats-grid">
+              <section className="stat-card"><p>Workouts finished</p><h3>{profile.sessions}</h3></section>
+              <section className="stat-card"><p>Exercises in your workout</p><h3>{workout.length}</h3></section>
+            </div>
+            <section className="workout-card">
+              <h3>Make your next move</h3>
+              <p className="small-text">Build a workout around your goals, one exercise at a time.</p>
+              <button className="main-button" onClick={() => setScreen('builder')}>{workout.length ? 'Edit saved workout' : 'Build workout'}</button>
+              {workout.length > 0 && <button className="secondary-button" onClick={() => setScreen('workout')}>Resume workout</button>}
+            </section>
+          </>
+        )}
+      </main>
     )
   }
 
@@ -185,15 +267,11 @@ function App() {
             <h1>FITNESS</h1>
           </div>
 
-          <button
-            className="sign-out"
-            onClick={() => setScreen('home')}
-          >
-            Home
-          </button>
+          {navigation}
 
         </header>
 
+        {notice}
         <section className="welcome">
 
           <p>Workout Builder</p>
@@ -464,7 +542,9 @@ function App() {
             <h1>FITNESS</h1>
           </div>
 
+          {navigation}
         </header>
+        {notice}
 
         <section className="welcome">
 
@@ -536,10 +616,10 @@ function App() {
                     {exercise.minutes} minutes
 
                     {exercise.speed &&
-                      ` • ${exercise.speed} mph`}
+                      ` · ${exercise.speed} mph`}
 
                     {exercise.incline &&
-                      ` • Incline ${exercise.incline}`}
+                      ` · Incline ${exercise.incline}`}
                   </p>
 
                 ) : (
@@ -548,7 +628,7 @@ function App() {
                     {exercise.sets} sets × {exercise.reps} reps
 
                     {exercise.weight &&
-                      ` • ${exercise.weight} lbs`}
+                      ` · ${exercise.weight} lbs`}
                   </p>
 
                 )}
@@ -596,3 +676,4 @@ function App() {
 }
 
 export default App
+

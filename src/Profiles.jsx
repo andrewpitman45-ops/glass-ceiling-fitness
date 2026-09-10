@@ -8,14 +8,18 @@ export function ProfileForm({ profile, onSave, onCancel }) {
   const [goal, setGoal] = useState(profile?.goal || goals[0])
   const [clientType, setClientType] = useState(profile?.clientType || 'independent')
   const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
 
-  function submit(event) {
+  async function submit(event) {
     event.preventDefault()
     if (!name.trim()) {
       setError('Enter a name for your profile.')
       return
     }
-    setError(onSave({ name: name.trim(), goal, clientType }) || '')
+    setBusy(true)
+    try { setError(await onSave({ name: name.trim(), goal, clientType }) || '') }
+    catch { setError('Could not save your profile. Please try again.') }
+    finally { setBusy(false) }
   }
 
   return (
@@ -24,16 +28,16 @@ export function ProfileForm({ profile, onSave, onCancel }) {
       <input id="profile-name" autoComplete="given-name" maxLength={40} required value={name} onChange={event => setName(event.target.value)} />
       <fieldset className="client-options">
         <legend>How are you joining us?</legend>
-        <label><input type="radio" name="client-type" value="independent" checked={clientType === 'independent'} onChange={event => setClientType(event.target.value)} /><span>Independent<small>Personal fitness and nutrition planning.</small></span></label>
-        <label><input type="radio" name="client-type" value="youre-with-us" checked={clientType === 'youre-with-us'} onChange={event => setClientType(event.target.value)} /><span>You're With Us client<small>Disability-focused fitness and individualized support.</small></span></label>
+        <label><input type="radio" name="client-type" value="independent" checked={clientType === 'independent'} onChange={event => setClientType(event.target.value)} /><span>I'm joining independently<small>Fitness and nutrition planning around my goals.</small></span></label>
+        <label><input type="radio" name="client-type" value="youre-with-us" checked={clientType === 'youre-with-us'} onChange={event => setClientType(event.target.value)} /><span>I'm joining through You're With Us<small>Personalized fitness for people with disabilities, with support shaped around me.</small></span></label>
       </fieldset>
-      <p className="small-text">Choose your client pathway. Accessibility and individual needs matter in both.</p>
+      <p className="small-text">Tell us how you're joining. Your preferences, accessibility needs, and choices matter in either option.</p>
       <label htmlFor="profile-goal">Fitness goal</label>
       <select id="profile-goal" value={goal} onChange={event => setGoal(event.target.value)}>
         {goals.map(item => <option key={item}>{item}</option>)}
       </select>
       {error && <p className="form-error" role="alert">{error}</p>}
-      <button className="main-button" type="submit">{profile ? 'Save profile' : 'Create profile & continue'}</button>
+      <button className="main-button" disabled={busy} type="submit">{busy ? 'Saving…' : profile ? 'Save profile' : 'Create profile & continue'}</button>
       {onCancel && <button className="secondary-button" type="button" onClick={onCancel}>Cancel</button>}
     </form>
   )
@@ -45,9 +49,9 @@ export default function Profiles({ profiles, onSelect, onCreate }) {
     <main className="app-shell">
       <div className="entry-brand"><Brand /><span className="brand-caption">FITNESS THAT FITS YOU</span></div>
       <section className="entry-hero" aria-labelledby="hero-title">
-        <p className="hero-kicker"><span /> DISABILITY-FOCUSED. PERSON-CENTERED.</p>
+        <p className="hero-kicker"><span /> YOU COME FIRST.</p>
         <h1 id="hero-title">Your goals.<br /><em>Your way.</em></h1>
-        <p className="hero-copy">Disability-focused fitness with customized plans built around your abilities, preferences, and everyday life. A space to move, build confidence, and progress at your own pace.</p>
+        <p className="hero-copy">Personalized fitness for people with disabilities. Your plan starts with you: your goals, preferences, accessibility needs, and everyday life. Choose how you move and progress at your own pace.</p>
         <p className="trainer-credentials">Licensed &amp; insured NASM personal trainer</p>
         <div className="hero-rule" />
         <div className="hero-pillars"><span><b>01</b> Customized fitness</span><span><b>02</b> Nutrition planning</span><span><b>03</b> Individual support</span></div>
@@ -55,7 +59,7 @@ export default function Profiles({ profiles, onSelect, onCreate }) {
       <section className="login-card">
         <p className="card-kicker">YOUR PERSONAL TRAINING SPACE</p>
         <h2>{creating || profiles.length === 0 ? 'Create your profile' : 'Welcome back'}</h2>
-        <p className="profile-intro">{creating || profiles.length === 0 ? "Join independently or as a You're With Us client. Start with what matters to you." : 'Choose your profile to return to your fitness and nutrition plans.'}</p>
+        <p className="profile-intro">{creating || profiles.length === 0 ? "Join independently or through You're With Us. Start with what matters to you." : 'Choose your profile to return to your fitness and nutrition plans.'}</p>
         {creating || profiles.length === 0 ? (
           <ProfileForm onSave={onCreate} onCancel={profiles.length ? () => setCreating(false) : undefined} />
         ) : (
@@ -74,7 +78,7 @@ export default function Profiles({ profiles, onSelect, onCreate }) {
         )}
         <p className="demo-note">Profiles are saved on this browser. Anyone using this device can open them.</p>
       </section>
-      <footer className="entry-footer"><span>GLASS CEILING FITNESS</span><span>Your abilities. Your goals. Your pace.</span></footer>
+      <footer className="entry-footer"><span>GLASS CEILING FITNESS</span><span>Your goals. Your choices. Your pace.</span></footer>
     </main>
   )
 }

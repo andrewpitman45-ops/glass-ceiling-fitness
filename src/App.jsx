@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import './App.css'
 import Brand from './Brand'
 import Nutrition from './Nutrition'
-import Profiles, { ProfileForm } from './Profiles'
-import { readProfiles, saveProfiles } from './profileStore'
+import { ProfileForm } from './Profiles'
+import { supabase } from './supabase'
 
 const exerciseLibrary = {
   Cardio: [
@@ -83,28 +83,35 @@ const exerciseLibrary = {
   ],
 }
 
-function App() {
+function App({ initialProfile, onSignOut }) {
   const [screen, setScreen] = useState('home')
   const [selectedCategory, setSelectedCategory] = useState('Cardio')
-  const [profiles, setProfiles] = useState(() => readProfiles())
-  const [activeId, setActiveId] = useState(null)
+  const [profile, setProfile] = useState(initialProfile)
   const [storageError, setStorageError] = useState('')
-  const profile = profiles.find(item => item.id === activeId)
-  const workout = profile?.workout || []
-  const completed = profile?.completed || []
-
-  function persist(next) {
-    try {
-      saveProfiles(window.localStorage, next)
-      setStorageError('')
-    } catch {
-      setStorageError('Changes could not be saved. Allow browser storage to keep your progress after closing this tab.')
-    }
-    setProfiles(next)
-  }
+  const [saving, setSaving] = useState(false)
+  const saveQueue = useRef(Promise.resolve())
+  const latestProfile = useRef(initialProfile)
+  const revision = useRef(0)
+  const workout = profile.workout || []
+  const completed = profile.completed || []
 
   function updateProfile(changes) {
-    persist(profiles.map(item => item.id === activeId ? { ...item, ...changes } : item))
+    const next = { ...latestProfile.current, ...changes }
+    latestProfile.current = next
+    setProfile(next)
+    setSaving(true)
+    const currentRevision = ++revision.current
+    saveQueue.current = saveQueue.current.then(async () => {
+      try {
+        const { data, error } = await supabase.from('member_profiles').update({ data: next }).eq('user_id', initialProfile.id).select('user_id').single()
+        if (error || !data) throw error || new Error('Save failed')
+        if (revision.current === currentRevision) setStorageError('')
+      } catch {
+        setStorageError('Your latest changes could not be saved to your account. Keep this tab open and retry.')
+      } finally {
+        if (revision.current === currentRevision) setSaving(false)
+      }
+    })
   }
 
   function setWorkout(next) {
@@ -115,29 +122,13 @@ function App() {
     updateProfile({ completed: next })
   }
 
-  function selectProfile(id) {
-    setActiveId(id)
-    setScreen('home')
-    setSelectedCategory('Cardio')
-  }
-
   function saveDetails(details) {
-    if (profiles.some(item => item.id !== activeId && item.name.toLowerCase() === details.name.toLowerCase())) {
-      return 'A profile with this name already exists. Choose another name.'
-    }
-    if (profile) {
-      updateProfile(details)
-      setScreen('home')
-    } else {
-      const id = crypto.randomUUID()
-      persist([...profiles, { ...details, id, workout: [], completed: [], sessions: 0 }])
-      selectProfile(id)
-    }
+    updateProfile(details)
+    setScreen('home')
   }
 
   function signOut() {
-    setActiveId(null)
-    setScreen('home')
+    onSignOut()
   }
 
   function addExercise(name) {
@@ -207,18 +198,15 @@ function App() {
           (completed.length / workout.length) * 100
         )
 
-  if (!profile) {
-    return <Profiles profiles={profiles} onSelect={selectProfile} onCreate={saveDetails} />
-  }
 
   const navigation = (
     <nav className="profile-nav" aria-label="Profile navigation">
       <button className="sign-out" onClick={() => setScreen('home')}>{profile.name}</button>
       <button className="sign-out" onClick={() => setScreen('nutrition')}>Nutrition</button>
-      <button className="sign-out" onClick={signOut}>Sign out</button>
+      <button className="sign-out" disabled={saving} onClick={signOut}>Sign out</button>
     </nav>
   )
-  const notice = storageError && <p className="storage-error" role="alert">{storageError}</p>
+  const notice = <>{saving && <p className="welcome" role="status">Saving changes...</p>}{storageError && <div className="storage-error" role="alert">{storageError} <button className="secondary-button" disabled={saving} onClick={() => updateProfile({})}>Retry save</button></div>}</>
 
   const supportedClient = profile.clientType === 'youre-with-us'
 
@@ -226,7 +214,7 @@ function App() {
     return <main className="dashboard">
       <header className="top-bar"><Brand />{navigation}</header>
       {notice}
-      <section className="welcome"><p>{supportedClient ? "You're With Us · Nutrition" : 'Independent · Nutrition'}</p><h2>Your nutrition plan</h2></section>
+      <section className="welcome"><p>{supportedClient ? "Your nutrition space · Through You're With Us" : 'Your personal nutrition space'}</p><h2>Your nutrition plan</h2></section>
       <Nutrition key={profile.id} profile={profile} onSave={nutrition => updateProfile({ nutrition })} />
       <div className="welcome"><button className="secondary-button" onClick={() => setScreen('home')}>Back to my dashboard</button></div>
     </main>
@@ -240,7 +228,7 @@ function App() {
           {navigation}
         </header>
         {notice}
-        <section className="welcome"><p>{supportedClient ? "You're With Us · Disability-focused fitness" : 'Independent · Personal fitness'}</p><h2>Welcome, {profile.name}.</h2></section>
+        <section className="welcome"><p>{supportedClient ? "Your fitness space · Through You're With Us" : 'Your personal fitness space'}</p><h2>Welcome, {profile.name}.</h2></section>
         {screen === 'profile' ? (
           <section className="workout-card">
             <h3>Edit profile</h3>
@@ -258,8 +246,8 @@ function App() {
             </div>
             <section className="workout-card">
               <h3>Your customized fitness plan</h3>
-              <p className="small-text">{supportedClient ? 'Your abilities, comfort, and choices come first. Use this space to record the exercises and adjustments you agree on with your trainer.' : 'Build a routine around your goals, schedule, and preferences. Use this space to record your customized workout.'}</p>
-              <p className="demo-note">The exercise library is a starting point. Selecting a client pathway does not automatically adapt the exercises.</p>
+              <p className="small-text">{supportedClient ? 'You guide your goals. Work with your trainer to choose exercises, adjustments, and support that fit your preferences and accessibility needs.' : 'Build a routine around your goals, schedule, and preferences. Use this space to record your customized workout.'}</p>
+              <p className="demo-note">The exercise library is a starting point. Work with your trainer to choose any adjustments you need; exercises do not change automatically based on how you join.</p>
               <button className="main-button" onClick={() => setScreen('builder')}>{workout.length ? 'Edit saved workout' : 'Build workout'}</button>
               {workout.length > 0 && <button className="secondary-button" onClick={() => setScreen('workout')}>Resume workout</button>}
             </section>

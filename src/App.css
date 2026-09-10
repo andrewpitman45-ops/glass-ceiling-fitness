@@ -101,3 +101,9 @@ h1, h2, h3, p { margin-top: 0; }
 .profile-form textarea { width: 100%; resize: vertical; font: inherit; min-height: 180px; border: 1px solid #3a5061; border-radius: 9px; padding: 14px; background: #091522; color: var(--text); }
 textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
 .save-status { color: var(--accent); font-size: 13px; margin-top: 14px; }
+
+.account-shell { min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; padding: 32px 18px; background: radial-gradient(ellipse at 30% 35%, #12334080, transparent 58%), url('/shattered-glass.svg') center / cover, var(--bg); }
+.account-card { width: calc(100% - 32px); max-width: 480px; margin: 32px auto; }
+.account-shell .account-card { width: 100%; margin: 0; }
+.account-actions { display: flex; gap: 10px; }
+button:disabled { cursor: wait; opacity: .6; }

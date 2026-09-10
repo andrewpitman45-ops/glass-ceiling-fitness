@@ -1,5 +1,6 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import './App.css'
+import Brand from './Brand'
 import Profiles, { ProfileForm } from './Profiles'
 import { readProfiles, saveProfiles } from './profileStore'
 
@@ -221,7 +222,7 @@ function App() {
     return (
       <main className="dashboard">
         <header className="top-bar">
-          <div><p className="eyebrow">GLASS CEILING</p><h1>FITNESS</h1></div>
+          <Brand />
           {navigation}
         </header>
         {notice}
@@ -259,13 +260,7 @@ function App() {
 
         <header className="top-bar">
 
-          <div>
-            <p className="eyebrow">
-              GLASS CEILING
-            </p>
-
-            <h1>FITNESS</h1>
-          </div>
+          <Brand />
 
           {navigation}
 
@@ -534,13 +529,7 @@ function App() {
 
         <header className="top-bar">
 
-          <div>
-            <p className="eyebrow">
-              GLASS CEILING
-            </p>
-
-            <h1>FITNESS</h1>
-          </div>
+          <Brand />
 
           {navigation}
         </header>

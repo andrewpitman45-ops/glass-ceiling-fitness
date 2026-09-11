@@ -55,18 +55,61 @@ function Member({ user, onSignOut }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [retry, setRetry] = useState(0)
-  useEffect(() => {
-    let active = true
-    supabase.from('member_profiles').select('data').eq('user_id', user.id).maybeSingle().then(({ data, error }) => {
+ useEffect(() => {
+  let active = true
+
+  supabase
+    .from('member_profiles')
+    .select('data')
+    .eq('user_id', user.id)
+    .maybeSingle()
+    .then(({ data, error }) => {
       if (!active) return
-      setError(error ? 'Unable to load your account. Try again or contact the site owner.' : '')
-      setProfile(data ? { ...data.data, id: user.id } : null)
+
+      setError(
+        error
+          ? 'Unable to load your account. Try again or contact the site owner.'
+          : ''
+      )
+
+      if (data) {
+        const saved = data.data
+
+        setProfile({
+          ...saved,
+          id: user.id,
+
+          weeklyWorkouts: saved.weeklyWorkouts || {
+            monday: [],
+            tuesday: [],
+            wednesday: [],
+            thursday: [],
+            friday: [],
+            saturday: [],
+            sunday: [],
+          },
+
+          workoutHistory: saved.workoutHistory || [],
+        })
+      } else {
+        setProfile(null)
+      }
+
       setLoading(false)
-    }).catch(() => { if (active) { setError('Unable to connect. Please retry.'); setLoading(false) } })
-    return () => { active = false }
-  }, [user.id, retry])
+    })
+    .catch(() => {
+      if (active) {
+        setError('Unable to connect. Please retry.')
+        setLoading(false)
+      }
+    })
+
+  return () => {
+    active = false
+  }
+}, [user.id, retry])
   async function createProfile(details) {
-    const next = { ...details, id: user.id, workout: [], completed: [], sessions: 0, nutrition: '' }
+  .detaiconst next =ls, id: user.id, workout: [], completed: [], sessions: 0, nutrition: '' }
     const { error } = await supabase.from('member_profiles').insert({ user_id: user.id, data: next })
     if (error) return 'Could not create your profile. Please retry.'
     setProfile(next)

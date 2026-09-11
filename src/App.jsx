@@ -126,7 +126,15 @@ const workout = weeklyWorkouts[selectedDay] || []
   }
 
   function setWorkout(next) {
-    updateProfile({ workout: next, completed: completed.filter(name => next.some(item => item.name === name)) })
+    const nextWeeklyWorkouts = {
+      ...weeklyWorkouts,
+      [selectedDay]: next,
+    }
+
+    updateProfile({
+      weeklyWorkouts: nextWeeklyWorkouts,
+      completed: completed.filter(name => next.some(item => item.name === name)),
+    })
   }
 
   function setCompleted(next) {
@@ -222,6 +230,32 @@ const workout = weeklyWorkouts[selectedDay] || []
         )
 
 
+  const daySelector = (
+    <div className="day-selector">
+      {[
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+        'sunday',
+      ].map((day) => (
+        <button
+          key={day}
+          type="button"
+          className={selectedDay === day ? 'main-button' : 'secondary-button'}
+          onClick={() => {
+            setSelectedDay(day)
+            setCompleted([])
+          }}
+        >
+          {day.charAt(0).toUpperCase() + day.slice(1)}
+        </button>
+      ))}
+    </div>
+  )
+
   const navigation = (
     <nav className="profile-nav" aria-label="Profile navigation">
       <button className="sign-out" onClick={() => setScreen('home')}>{profile.name}</button>
@@ -263,6 +297,7 @@ const workout = weeklyWorkouts[selectedDay] || []
               <p className="small-text">Your fitness goal</p><h3>{profile.goal}</h3>
               <button className="secondary-button" onClick={() => setScreen('profile')}>Edit profile</button>
             </section>
+            {daySelector}
             <div className="stats-grid">
               <section className="stat-card"><p>Workouts finished</p><h3>{profile.sessions}</h3></section>
               <section className="stat-card"><p>Exercises in your workout</p><h3>{workout.length}</h3></section>
@@ -305,10 +340,12 @@ const workout = weeklyWorkouts[selectedDay] || []
           <p>Workout Builder</p>
 
           <h2>
-            Build Today's Workout
+            Build {selectedDay.charAt(0).toUpperCase() + selectedDay.slice(1)} Workout
           </h2>
 
         </section>
+
+        {daySelector}
 
         <section className="goal-card">
 
@@ -382,7 +419,7 @@ const workout = weeklyWorkouts[selectedDay] || []
         <section className="workout-card">
 
           <p className="small-text">
-            Today's Workout
+            {selectedDay.charAt(0).toUpperCase() + selectedDay.slice(1)} Workout
           </p>
 
           <h3>
@@ -580,6 +617,8 @@ const workout = weeklyWorkouts[selectedDay] || []
 
         </section>
 
+        {daySelector}
+
         <section className="goal-card">
 
           <div className="goal-header">
@@ -687,29 +726,7 @@ const workout = weeklyWorkouts[selectedDay] || []
               </button>
 
             )}
-<div className="day-selector">
-  {[
-    'monday',
-    'tuesday',
-    'wednesday',
-    'thursday',
-    'friday',
-    'saturday',
-    'sunday',
-  ].map((day) => (
-    <button
-      key={day}
-      className={selectedDay === day ? 'main-button' : 'secondary-button'}
-      onClick={() => {
-        setSelectedDay(day)
-        setCompleted([])
-      }}
-      type="button"
-    >
-      {day.charAt(0).toUpperCase() + day.slice(1)}
-    </button>
-  ))}
-</div>
+
         </section>
 
       </div>

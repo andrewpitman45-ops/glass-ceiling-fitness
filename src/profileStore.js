@@ -15,6 +15,9 @@ export function readProfiles(storage) {
           meal: typeof entry.meal === 'string' ? entry.meal : 'Snack',
           food: entry.food,
           calories: Math.max(0, Math.round(entry.calories)),
+          protein: Number.isFinite(entry.protein) ? Math.max(0, entry.protein) : 0,
+          carbs: Number.isFinite(entry.carbs) ? Math.max(0, entry.carbs) : 0,
+          fat: Number.isFinite(entry.fat) ? Math.max(0, entry.fat) : 0,
         })) : [],
         caloriesBurned: Array.isArray(profile.caloriesBurned) ? profile.caloriesBurned.filter(entry => entry && typeof entry.id === 'string' && typeof entry.date === 'string' && typeof entry.activity === 'string' && Number.isFinite(entry.calories)).map(entry => ({
           id: entry.id,

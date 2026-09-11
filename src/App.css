@@ -25,8 +25,7 @@ h1, h2, h3, p { margin-top: 0; }
 .hero-rule { width: 64px; height: 2px; background: var(--accent); margin: 36px 0 24px; }
 .hero-pillars { display: flex; flex-wrap: wrap; gap: 22px; color: #c1d2dd; font-size: 11px; }
 .hero-pillars b { display: block; color: #72c6cf; font-size: 10px; letter-spacing: 2px; margin-bottom: 6px; }
--webkit-backdrop-filter: blur(10px);
-.login-card { padding: 34px; background: linear-gradient(140deg, #1a2c3aeb, #0c1723f5); border: 1px solid #456171; border-radius: 20px; box-shadow: 0 30px 90px #0007, inset 0 1px #c3faff18; backdrop-filter: blur(18px); }
+.login-card { padding: 34px; background: linear-gradient(140deg, #1a2c3aeb, #0c1723f5); border: 1px solid #456171; border-radius: 20px; box-shadow: 0 30px 90px #0007, inset 0 1px #c3faff18; -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
 .card-kicker { font-size: 9px; letter-spacing: 1.6px; margin-bottom: 23px; }
 .login-card h2 { font-size: 29px; letter-spacing: -.8px; margin-bottom: 9px; }
 .profile-intro { font-size: 14px; color: var(--muted); margin: 0 0 26px; }
@@ -139,3 +138,4 @@ textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; 
 .account-actions { display: flex; gap: 10px; }
 button:disabled { cursor: wait; opacity: .6; }
 @media (max-width: 560px) { .nutrition-inputs label:last-child { grid-column: auto; } }
+`

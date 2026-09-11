@@ -109,6 +109,40 @@ function Member({ user, onSignOut }) {
   }
 }, [user.id, retry])
   async function createProfile(details) {
+  const next = {
+    ...details,
+    id: user.id,
+
+    weeklyWorkouts: {
+      monday: [],
+      tuesday: [],
+      wednesday: [],
+      thursday: [],
+      friday: [],
+      saturday: [],
+      sunday: [],
+    },
+
+    workoutHistory: [],
+
+    completed: [],
+    sessions: 0,
+    nutrition: '',
+  }
+
+  const { error } = await supabase
+    .from('member_profiles')
+    .insert({
+      user_id: user.id,
+      data: next,
+    })
+
+  if (error) {
+    return 'Could not create your profile. Please retry.'
+  }
+
+  setProfile(next)
+}
   .detaiconst next =ls, id: user.id, workout: [], completed: [], sessions: 0, nutrition: '' }
     const { error } = await supabase.from('member_profiles').insert({ user_id: user.id, data: next })
     if (error) return 'Could not create your profile. Please retry.'

@@ -85,6 +85,7 @@ const exerciseLibrary = {
 
 function App({ initialProfile, onSignOut }) {
   const [screen, setScreen] = useState('home')
+  const [selectedDay, setSelectedDay] = useState('monday')
   const [selectedCategory, setSelectedCategory] = useState('Cardio')
   const [profile, setProfile] = useState(initialProfile)
   const [storageError, setStorageError] = useState('')
@@ -92,7 +93,17 @@ function App({ initialProfile, onSignOut }) {
   const saveQueue = useRef(Promise.resolve())
   const latestProfile = useRef(initialProfile)
   const revision = useRef(0)
-  const workout = profile.workout || []
+  const weeklyWorkouts = profile.weeklyWorkouts || {
+  monday: [],
+  tuesday: [],
+  wednesday: [],
+  thursday: [],
+  friday: [],
+  saturday: [],
+  sunday: [],
+}
+
+const workout = weeklyWorkouts[selectedDay] || []
   const completed = profile.completed || []
 
   function updateProfile(changes) {
@@ -186,10 +197,22 @@ function App({ initialProfile, onSignOut }) {
     }
   }
 
-  function finishWorkout() {
-    updateProfile({ workout: [], completed: [], sessions: profile.sessions + 1 })
-    setScreen('home')
+  function function finishWorkout() {
+  const finishedWorkout = weeklyWorkouts[selectedDay] || []
+
+  const nextWeeklyWorkouts = {
+    ...weeklyWorkouts,
+    [selectedDay]: finishedWorkout,
   }
+
+  updateProfile({
+    weeklyWorkouts: nextWeeklyWorkouts,
+    completed: [],
+    sessions: profile.sessions + 1,
+  })
+
+  setScreen('home')
+}
 
   const progress =
     workout.length === 0
@@ -664,7 +687,29 @@ function App({ initialProfile, onSignOut }) {
               </button>
 
             )}
-
+<div className="day-selector">
+  {[
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday',
+    'sunday',
+  ].map((day) => (
+    <button
+      key={day}
+      className={selectedDay === day ? 'main-button' : 'secondary-button'}
+      onClick={() => {
+        setSelectedDay(day)
+        setCompleted([])
+      }}
+      type="button"
+    >
+      {day.charAt(0).toUpperCase() + day.slice(1)}
+    </button>
+  ))}
+</div>
         </section>
 
       </div>

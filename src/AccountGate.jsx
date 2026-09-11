@@ -50,7 +50,7 @@ function AccountForm({ recovery, onRecovered }) {
   </>
 }
 
-function Member function Member({ user, onSignOut }) {
+function Member({ user, onSignOut }) {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')

@@ -307,6 +307,10 @@ function Member({ user, onSignOut }) {
 
       workoutHistory: [],
       completed: [],
+      rewardMonth: new Date().toISOString().slice(0, 7),
+      monthlyWorkoutDates: [],
+      completedWeeks: [],
+      rewardPoints: 0,
       sessions: 0,
       nutrition: '',
     }

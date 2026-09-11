@@ -110,15 +110,47 @@ function localDate() {
   return new Date(date.getTime() - offset).toISOString().slice(0, 10)
 }
 
+function currentMonth() {
+  const date = new Date()
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+}
+
+function weekStart(dateString) {
+  const [year, month, day] = dateString.split('-').map(Number)
+  const date = new Date(year, month - 1, day)
+  const daysFromMonday = (date.getDay() + 6) % 7
+  date.setDate(date.getDate() - daysFromMonday)
+  return date.toISOString().slice(0, 10)
+}
+
+function normalizeRewards(profile) {
+  if (profile.rewardMonth === currentMonth()) {
+    return {
+      ...profile,
+      monthlyWorkoutDates: Array.isArray(profile.monthlyWorkoutDates) ? profile.monthlyWorkoutDates : [],
+      completedWeeks: Array.isArray(profile.completedWeeks) ? profile.completedWeeks : [],
+      rewardPoints: Number.isInteger(profile.rewardPoints) ? profile.rewardPoints : 0,
+    }
+  }
+
+  return {
+    ...profile,
+    rewardMonth: currentMonth(),
+    monthlyWorkoutDates: [],
+    completedWeeks: [],
+    rewardPoints: 0,
+  }
+}
+
 function App({ initialProfile, onSignOut }) {
   const [screen, setScreen] = useState('home')
   const [selectedDay, setSelectedDay] = useState('monday')
   const [selectedCategory, setSelectedCategory] = useState('Cardio')
-  const [profile, setProfile] = useState(initialProfile)
+  const [profile, setProfile] = useState(() => normalizeRewards(initialProfile))
   const [storageError, setStorageError] = useState('')
   const [saving, setSaving] = useState(false)
   const saveQueue = useRef(Promise.resolve())
-  const latestProfile = useRef(initialProfile)
+  const latestProfile = useRef(normalizeRewards(initialProfile))
   const revision = useRef(0)
   const weeklyWorkouts = profile.weeklyWorkouts || {
   monday: [],
@@ -255,11 +287,27 @@ const workout = weeklyWorkouts[selectedDay] || []
     },
   ]
 
+  const workoutDate = localDate()
+  const monthlyWorkoutDates = Array.from(new Set([
+    ...(profile.monthlyWorkoutDates || []),
+    workoutDate,
+  ]))
+  const completedWeeks = profile.completedWeeks || []
+  const currentWeek = weekStart(workoutDate)
+  const completedWorkoutsThisWeek = monthlyWorkoutDates.filter(
+    date => weekStart(date) === currentWeek
+  ).length
+  const earnsPoint = completedWorkoutsThisWeek >= 7 && !completedWeeks.includes(currentWeek)
+
   updateProfile({
     weeklyWorkouts: nextWeeklyWorkouts,
     completed: [],
     sessions: profile.sessions + 1,
     caloriesBurned: nextCaloriesBurned,
+    rewardMonth: currentMonth(),
+    monthlyWorkoutDates,
+    completedWeeks: earnsPoint ? [...completedWeeks, currentWeek] : completedWeeks,
+    rewardPoints: (profile.rewardPoints || 0) + (earnsPoint ? 1 : 0),
   })
 
   setScreen('home')
@@ -271,6 +319,13 @@ const workout = weeklyWorkouts[selectedDay] || []
       : Math.round(
           (completed.length / workout.length) * 100
         )
+
+  const rewardPoints = Math.max(0, profile.rewardPoints || 0)
+  const rewardProgress = Math.min(rewardPoints / 4, 1)
+  const monthlyWorkoutCount = (profile.monthlyWorkoutDates || []).length
+  const currentWeekWorkoutCount = (profile.monthlyWorkoutDates || []).filter(
+    date => weekStart(date) === weekStart(localDate())
+  ).length
 
 
   const daySelector = (
@@ -353,9 +408,21 @@ const workout = weeklyWorkouts[selectedDay] || []
             </section>
             {daySelector}
             <div className="stats-grid">
-              <section className="stat-card"><p>Workouts finished</p><h3>{profile.sessions}</h3></section>
+              <section className="stat-card"><p>Workouts this month</p><h3>{monthlyWorkoutCount}</h3></section>
               <section className="stat-card"><p>Exercises in your workout</p><h3>{workout.length}</h3></section>
             </div>
+            <section className="reward-card">
+              <div className="reward-copy">
+                <p className="small-text">Monthly consistency reward</p>
+                <h3>{rewardPoints >= 4 ? 'Prize unlocked' : `${rewardPoints} of 4 points`}</h3>
+                <p className="small-text">Complete 7 workouts in one week to earn a point. This month resets automatically at the start of a new month.</p>
+                <p className="reward-week">This week: {currentWeekWorkoutCount} / 7 workouts</p>
+              </div>
+              <div className="reward-pie" style={{ '--reward-progress': `${rewardProgress * 360}deg` }} role="img" aria-label={`${rewardPoints} of 4 reward points earned this month`}>
+                <strong>{Math.min(rewardPoints, 4)}</strong>
+                <span>/ 4</span>
+              </div>
+            </section>
             <section className="workout-card">
               <h3>Your customized fitness plan</h3>
               <p className="small-text">{supportedClient ? 'You guide your goals. Work with your trainer to choose exercises, adjustments, and support that fit your preferences and accessibility needs.' : 'Build a routine around your goals, schedule, and preferences. Use this space to record your customized workout.'}</p>

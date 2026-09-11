@@ -50,59 +50,66 @@ function AccountForm({ recovery, onRecovered }) {
   </>
 }
 
-function Member({ useEffect(() => {
-  let active = true
+function Member function Member({ user, onSignOut }) {
+  const [profile, setProfile] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [retry, setRetry] = useState(0)
 
-  supabase
-    .from('member_profiles')
-    .select('data')
-    .eq('user_id', user.id)
-    .maybeSingle()
-    .then(({ data, error }) => {
-      if (!active) return
+  useEffect(() => {
+    let active = true
 
-      setError(
-        error
-          ? 'Unable to load your account. Try again or contact the site owner.'
-          : ''
-      )
+    supabase
+      .from('member_profiles')
+      .select('data')
+      .eq('user_id', user.id)
+      .maybeSingle()
+      .then(({ data, error }) => {
+        if (!active) return
 
-      if (data) {
-        const saved = data.data
+        setError(
+          error
+            ? 'Unable to load your account. Try again or contact the site owner.'
+            : ''
+        )
 
-        setProfile({
-          ...saved,
-          id: user.id,
+        if (data) {
+          const saved = data.data
 
-          weeklyWorkouts: saved.weeklyWorkouts || {
-            monday: [],
-            tuesday: [],
-            wednesday: [],
-            thursday: [],
-            friday: [],
-            saturday: [],
-            sunday: [],
-          },
+          setProfile({
+            ...saved,
+            id: user.id,
 
-          workoutHistory: saved.workoutHistory || [],
-        })
-      } else {
-        setProfile(null)
-      }
+            weeklyWorkouts: saved.weeklyWorkouts || {
+              monday: [],
+              tuesday: [],
+              wednesday: [],
+              thursday: [],
+              friday: [],
+              saturday: [],
+              sunday: [],
+            },
 
-      setLoading(false)
-    })
-    .catch(() => {
-      if (active) {
-        setError('Unable to connect. Please retry.')
+            workoutHistory: saved.workoutHistory || [],
+          })
+        } else {
+          setProfile(null)
+        }
+
         setLoading(false)
-      }
-    })
+      })
+      .catch(() => {
+        if (active) {
+          setError('Unable to connect. Please retry.')
+          setLoading(false)
+        }
+      })
 
-  return () => {
-    active = false
-  }
-}, [user.id, retry])
+    return () => {
+      active = false
+    }
+  }, [user.id, retry])
+
   async function createProfile(details) {
   const next = {
     ...details,

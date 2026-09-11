@@ -7,6 +7,7 @@ export function ProfileForm({ profile, onSave, onCancel }) {
   const [name, setName] = useState(profile?.name || '')
   const [goal, setGoal] = useState(profile?.goal || goals[0])
   const [clientType, setClientType] = useState(profile?.clientType || 'independent')
+  const [bodyWeight, setBodyWeight] = useState(profile?.bodyWeight || '')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
@@ -17,7 +18,7 @@ export function ProfileForm({ profile, onSave, onCancel }) {
       return
     }
     setBusy(true)
-    try { setError(await onSave({ name: name.trim(), goal, clientType }) || '') }
+    try { setError(await onSave({ name: name.trim(), goal, clientType, bodyWeight }) || '') }
     catch { setError('Could not save your profile. Please try again.') }
     finally { setBusy(false) }
   }
@@ -36,6 +37,9 @@ export function ProfileForm({ profile, onSave, onCancel }) {
       <select id="profile-goal" value={goal} onChange={event => setGoal(event.target.value)}>
         {goals.map(item => <option key={item}>{item}</option>)}
       </select>
+      <label htmlFor="profile-body-weight">Body weight (lb, optional)</label>
+      <input id="profile-body-weight" type="number" min="1" max="1000" value={bodyWeight} onChange={event => setBodyWeight(event.target.value)} />
+      <p className="small-text">Used to personalize calorie estimates. A default of 150 lb is used when this is blank.</p>
       {error && <p className="form-error" role="alert">{error}</p>}
       <button className="main-button" disabled={busy} type="submit">{busy ? 'Saving…' : profile ? 'Save profile' : 'Create profile & continue'}</button>
       {onCancel && <button className="secondary-button" type="button" onClick={onCancel}>Cancel</button>}

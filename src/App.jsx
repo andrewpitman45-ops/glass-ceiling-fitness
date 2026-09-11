@@ -83,6 +83,26 @@ const exerciseLibrary = {
   ],
 }
 
+const exerciseMetValues = {
+  'Treadmill Walking': 3.5,
+  'Incline Treadmill Walking': 5,
+  'Easy Recovery Walking': 2.8,
+  'Easy Walking': 2.8,
+  'Light Stretching': 2.3,
+  'Complete Rest Day': 1.2,
+  'Push-ups': 8,
+  Plank: 3.5,
+  'Side Plank': 3.5,
+}
+
+function estimateCalories(exercise, bodyWeight) {
+  const weightInPounds = Number(bodyWeight) > 0 ? Number(bodyWeight) : 150
+  const minutes = Number(exercise.minutes || exercise.duration || 0)
+  const met = exerciseMetValues[exercise.name] || 5
+  if (minutes <= 0) return 0
+  return Math.round(met * 3.5 * (weightInPounds / 2.205) / 200 * minutes)
+}
+
 function App({ initialProfile, onSignOut }) {
   const [screen, setScreen] = useState('home')
   const [selectedDay, setSelectedDay] = useState('monday')
@@ -169,6 +189,7 @@ const workout = weeklyWorkouts[selectedDay] || []
       reps: isCardio ? '' : '10',
       weight: '',
       minutes: isCardio ? '10' : '',
+      duration: isCardio ? '' : '30',
       speed: '',
       incline: '',
     }
@@ -551,6 +572,24 @@ const workout = weeklyWorkouts[selectedDay] || []
                   </label>
 
                   <label>
+                    Duration
+
+                    <input
+                      type="number"
+                      min="1"
+                      placeholder="minutes"
+                      value={exercise.duration || ''}
+                      onChange={(event) =>
+                        updateExercise(
+                          exercise.name,
+                          'duration',
+                          event.target.value
+                        )
+                      }
+                    />
+                  </label>
+
+                  <label>
                     Weight
 
                     <input
@@ -570,6 +609,10 @@ const workout = weeklyWorkouts[selectedDay] || []
                 </div>
 
               )}
+
+              <p className="calorie-estimate">
+                Estimated calories: {estimateCalories(exercise, profile.bodyWeight)}
+              </p>
 
             </div>
           ))}
@@ -688,11 +731,18 @@ const workout = weeklyWorkouts[selectedDay] || []
                   <p>
                     {exercise.sets} sets × {exercise.reps} reps
 
+                    {exercise.duration &&
+                      ` · ${exercise.duration} minutes`}
+
                     {exercise.weight &&
                       ` · ${exercise.weight} lbs`}
                   </p>
 
                 )}
+
+                <p className="calorie-estimate">
+                  Estimated calories: {estimateCalories(exercise, profile.bodyWeight)}
+                </p>
 
                 <button
                   className={

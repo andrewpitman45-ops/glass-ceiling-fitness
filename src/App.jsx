@@ -197,7 +197,7 @@ const workout = weeklyWorkouts[selectedDay] || []
     }
   }
 
-  function function finishWorkout() {
+  function finishWorkout() {
   const finishedWorkout = weeklyWorkouts[selectedDay] || []
 
   const nextWeeklyWorkouts = {

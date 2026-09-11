@@ -50,12 +50,7 @@ function AccountForm({ recovery, onRecovered }) {
   </>
 }
 
-function Member({ user, onSignOut }) {
-  const [profile, setProfile] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [retry, setRetry] = useState(0)
- useEffect(() => {
+function Member({ useEffect(() => {
   let active = true
 
   supabase
@@ -143,16 +138,15 @@ function Member({ user, onSignOut }) {
 
   setProfile(next)
 }
-  .detaiconst next =ls, id: user.id, workout: [], completed: [], sessions: 0, nutrition: '' }
-    const { error } = await supabase.from('member_profiles').insert({ user_id: user.id, data: next })
-    if (error) return 'Could not create your profile. Please retry.'
-    setProfile(next)
-  }
-  if (profile && !error) return <App key={user.id} initialProfile={profile} onSignOut={onSignOut} />
-  return <section className="login-card account-card">
-    {loading ? <p role="status">Loading your private account…</p> : error ? <><p role="alert">{error}</p><button className="main-button" onClick={() => { setLoading(true); setRetry(retry + 1) }}>Retry</button></> : <><h2>Make it yours</h2><ProfileForm onSave={createProfile} /><p className="demo-note">Your profile is saved to your account. Previous shared browser profiles are not automatically imported.</p></>}
-    <button className="secondary-button" onClick={onSignOut}>Sign out</button>
-  </section>
+
+if (profile && !error) {
+  return (
+    <App
+      key={user.id}
+      initialProfile={profile}
+      onSignOut={onSignOut}
+    />
+  )
 }
 
 export default function AccountGate() {

@@ -1,7 +1,21 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 function today() {
   return new Date().toISOString().slice(0, 10)
+}
+
+function numberOrZero(value) {
+  return Number.isFinite(Number(value)) ? Number(value) : 0
+}
+
+function nutritionPer100g(product) {
+  const nutrients = product.nutriments || {}
+  return {
+    calories: numberOrZero(nutrients['energy-kcal_100g'] || nutrients['energy-kcal_value']),
+    protein: numberOrZero(nutrients.proteins_100g),
+    carbs: numberOrZero(nutrients.carbohydrates_100g),
+    fat: numberOrZero(nutrients.fat_100g),
+  }
 }
 
 export default function Nutrition({ profile, onSave }) {
@@ -14,6 +28,10 @@ export default function Nutrition({ profile, onSave }) {
   const [protein, setProtein] = useState('')
   const [carbs, setCarbs] = useState('')
   const [fat, setFat] = useState('')
+  const [servingGrams, setServingGrams] = useState('100')
+  const [foodResults, setFoodResults] = useState([])
+  const [foodSearchStatus, setFoodSearchStatus] = useState('')
+  const [selectedFood, setSelectedFood] = useState(null)
   const [saved, setSaved] = useState(false)
   const todaysEntries = useMemo(() => entries.filter(entry => entry.date === entryDate), [entries, entryDate])
   const todaysCalories = todaysEntries.reduce((total, entry) => total + entry.calories, 0)
@@ -23,6 +41,67 @@ export default function Nutrition({ profile, onSave }) {
     fat: totals.fat + entry.fat,
   }), { protein: 0, carbs: 0, fat: 0 })
   const largestMacro = Math.max(...Object.values(macroTotals), 1)
+
+  useEffect(() => {
+    const searchTerm = food.trim()
+    if (searchTerm.length < 2 || selectedFood?.name === searchTerm) {
+      return undefined
+    }
+
+    const controller = new AbortController()
+    const timeout = setTimeout(async () => {
+      setFoodSearchStatus('Searching foods...')
+      try {
+        const params = new URLSearchParams({
+          search_terms: searchTerm,
+          search_simple: '1',
+          action: 'process',
+          json: '1',
+          page_size: '8',
+          fields: 'code,product_name,brands,nutriments,serving_quantity',
+        })
+        const response = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?${params}`, { signal: controller.signal })
+        if (!response.ok) throw new Error('Food search failed')
+        const result = await response.json()
+        const products = (result.products || []).filter(product => product.product_name && product.nutriments)
+        setFoodResults(products)
+        setFoodSearchStatus(products.length ? '' : 'No matching foods found. You can enter the values manually.')
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          setFoodResults([])
+          setFoodSearchStatus('Food lookup unavailable. Enter the values manually.')
+        }
+      }
+    }, 350)
+
+    return () => {
+      clearTimeout(timeout)
+      controller.abort()
+    }
+  }, [food, selectedFood])
+
+  function applyFood(product, grams = servingGrams) {
+    const per100g = nutritionPer100g(product)
+    const multiplier = Math.max(0, numberOrZero(grams)) / 100
+    setSelectedFood({ name: product.product_name, per100g })
+    setFood(product.product_name)
+    setCalories(String(Math.round(per100g.calories * multiplier)))
+    setProtein(String(Math.round(per100g.protein * multiplier * 10) / 10))
+    setCarbs(String(Math.round(per100g.carbs * multiplier * 10) / 10))
+    setFat(String(Math.round(per100g.fat * multiplier * 10) / 10))
+    setFoodResults([])
+    setFoodSearchStatus('Nutrition loaded from Open Food Facts. Check the serving size before adding it.')
+  }
+
+  function changeServingSize(value) {
+    setServingGrams(value)
+    if (selectedFood) applyFood({ product_name: selectedFood.name, nutriments: {
+      'energy-kcal_100g': selectedFood.per100g.calories,
+      proteins_100g: selectedFood.per100g.protein,
+      carbohydrates_100g: selectedFood.per100g.carbs,
+      fat_100g: selectedFood.per100g.fat,
+    } }, value)
+  }
 
   function saveNutrition(nextEntries = entries, nextPlan = plan) {
     setEntries(nextEntries)
@@ -45,6 +124,9 @@ export default function Nutrition({ profile, onSave }) {
     setProtein('')
     setCarbs('')
     setFat('')
+    setServingGrams('100')
+    setSelectedFood(null)
+    setFoodSearchStatus('')
   }
 
   function removeFood(id) {
@@ -79,7 +161,16 @@ export default function Nutrition({ profile, onSave }) {
         <div className="nutrition-inputs">
           <label>Date<input type="date" value={entryDate} onChange={event => setEntryDate(event.target.value)} required /></label>
           <label>Meal<select value={meal} onChange={event => setMeal(event.target.value)}><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option></select></label>
-          <label>Food item<input value={food} onChange={event => setFood(event.target.value)} placeholder="e.g. Greek yogurt" required /></label>
+          <label className="food-search-label">Food item
+            <input value={food} onChange={event => { setFood(event.target.value); setSelectedFood(null); setFoodResults([]); setFoodSearchStatus('') }} placeholder="e.g. Greek yogurt" autoComplete="off" required />
+            {foodResults.length > 0 && <div className="food-results" role="listbox" aria-label="Food search results">
+              {foodResults.map(product => <button type="button" key={product.code || product.product_name} role="option" onClick={() => { setServingGrams(String(product.serving_quantity || 100)); applyFood(product, product.serving_quantity || 100) }}>
+                <strong>{product.product_name}</strong><span>{product.brands || 'Open Food Facts'} · per 100g: {Math.round(nutritionPer100g(product).calories)} cal</span>
+              </button>)}
+            </div>}
+            {foodSearchStatus && <small className="food-search-status">{foodSearchStatus}</small>}
+          </label>
+          <label>Serving size (g)<input type="number" min="0" step="1" value={servingGrams} onChange={event => changeServingSize(event.target.value)} /></label>
           <label>Calories<input type="number" min="0" step="1" value={calories} onChange={event => setCalories(event.target.value)} placeholder="e.g. 180" required /></label>
           <label>Protein (g)<input type="number" min="0" step="0.1" value={protein} onChange={event => setProtein(event.target.value)} placeholder="e.g. 17" /></label>
           <label>Carbs (g)<input type="number" min="0" step="0.1" value={carbs} onChange={event => setCarbs(event.target.value)} placeholder="e.g. 8" /></label>

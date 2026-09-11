@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import './App.css'
 import Brand from './Brand'
+import CaloriesBurned from './CaloriesBurned'
 import Nutrition from './Nutrition'
 import { ProfileForm } from './Profiles'
 import { supabase } from './supabase'
@@ -101,6 +102,12 @@ function estimateCalories(exercise, bodyWeight) {
   const met = exerciseMetValues[exercise.name] || 5
   if (minutes <= 0) return 0
   return Math.round(met * 3.5 * (weightInPounds / 2.205) / 200 * minutes)
+}
+
+function localDate() {
+  const date = new Date()
+  const offset = date.getTimezoneOffset() * 60000
+  return new Date(date.getTime() - offset).toISOString().slice(0, 10)
 }
 
 function App({ initialProfile, onSignOut }) {
@@ -228,16 +235,31 @@ const workout = weeklyWorkouts[selectedDay] || []
 
   function finishWorkout() {
   const finishedWorkout = weeklyWorkouts[selectedDay] || []
+  const workoutCalories = finishedWorkout.reduce(
+    (total, exercise) => total + estimateCalories(exercise, profile.bodyWeight),
+    0
+  )
 
   const nextWeeklyWorkouts = {
     ...weeklyWorkouts,
     [selectedDay]: finishedWorkout,
   }
 
+  const nextCaloriesBurned = [
+    ...(profile.caloriesBurned || []),
+    {
+      id: `workout-${localDate()}-${selectedDay}-${profile.sessions + 1}`,
+      date: localDate(),
+      activity: `${selectedDay.charAt(0).toUpperCase() + selectedDay.slice(1)} workout`,
+      calories: workoutCalories,
+    },
+  ]
+
   updateProfile({
     weeklyWorkouts: nextWeeklyWorkouts,
     completed: [],
     sessions: profile.sessions + 1,
+    caloriesBurned: nextCaloriesBurned,
   })
 
   setScreen('home')
@@ -281,6 +303,7 @@ const workout = weeklyWorkouts[selectedDay] || []
     <nav className="profile-nav" aria-label="Profile navigation">
       <button className="sign-out" onClick={() => setScreen('home')}>{profile.name}</button>
       <button className="sign-out" onClick={() => setScreen('nutrition')}>Nutrition</button>
+      <button className="sign-out" onClick={() => setScreen('calories')}>Calories burned</button>
       <button className="sign-out" disabled={saving} onClick={signOut}>Sign out</button>
     </nav>
   )
@@ -294,6 +317,16 @@ const workout = weeklyWorkouts[selectedDay] || []
       {notice}
       <section className="welcome"><p>{supportedClient ? "Your nutrition space · Through You're With Us" : 'Your personal nutrition space'}</p><h2>Your nutrition plan</h2></section>
       <Nutrition key={profile.id} profile={profile} onSave={updateProfile} />
+      <div className="welcome"><button className="secondary-button" onClick={() => setScreen('home')}>Back to my dashboard</button></div>
+    </main>
+  }
+
+  if (screen === 'calories') {
+    return <main className="dashboard">
+      <header className="top-bar"><Brand />{navigation}</header>
+      {notice}
+      <section className="welcome"><p>Daily activity tracking</p><h2>Calories burned</h2></section>
+      <CaloriesBurned key={profile.id} profile={profile} onSave={updateProfile} />
       <div className="welcome"><button className="secondary-button" onClick={() => setScreen('home')}>Back to my dashboard</button></div>
     </main>
   }

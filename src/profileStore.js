@@ -9,6 +9,13 @@ export function readProfiles(storage) {
         ...profile,
         clientType: profile.clientType === 'youre-with-us' ? 'youre-with-us' : 'independent',
         nutrition: typeof profile.nutrition === 'string' ? profile.nutrition : '',
+        nutritionEntries: Array.isArray(profile.nutritionEntries) ? profile.nutritionEntries.filter(entry => entry && typeof entry.id === 'string' && typeof entry.date === 'string' && typeof entry.food === 'string' && Number.isFinite(entry.calories)).map(entry => ({
+          id: entry.id,
+          date: entry.date,
+          meal: typeof entry.meal === 'string' ? entry.meal : 'Snack',
+          food: entry.food,
+          calories: Math.max(0, Math.round(entry.calories)),
+        })) : [],
         workout: Array.isArray(profile.workout) ? profile.workout.filter(item => item && typeof item.name === 'string') : [],
         completed: Array.isArray(profile.completed) ? profile.completed.filter(item => typeof item === 'string') : [],
         sessions: Number.isInteger(profile.sessions) && profile.sessions >= 0 ? profile.sessions : 0,

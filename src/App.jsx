@@ -272,7 +272,7 @@ const workout = weeklyWorkouts[selectedDay] || []
       <header className="top-bar"><Brand />{navigation}</header>
       {notice}
       <section className="welcome"><p>{supportedClient ? "Your nutrition space · Through You're With Us" : 'Your personal nutrition space'}</p><h2>Your nutrition plan</h2></section>
-      <Nutrition key={profile.id} profile={profile} onSave={nutrition => updateProfile({ nutrition })} />
+      <Nutrition key={profile.id} profile={profile} onSave={updateProfile} />
       <div className="welcome"><button className="secondary-button" onClick={() => setScreen('home')}>Back to my dashboard</button></div>
     </main>
   }
@@ -313,7 +313,7 @@ const workout = weeklyWorkouts[selectedDay] || []
               <p className="small-text">Nutrition</p>
               <h3>Planning for everyday life</h3>
               <p className="small-text">{supportedClient ? 'A separate space for meal routines, food preferences, and the practical support that works for you.' : 'Keep meal ideas and your personal nutrition plan alongside your fitness routine.'}</p>
-              <button className="main-button" onClick={() => setScreen('nutrition')}>{profile.nutrition ? 'View nutrition plan' : 'Start nutrition plan'}</button>
+              <button className="main-button" onClick={() => setScreen('nutrition')}>{profile.nutrition || profile.nutritionEntries?.length ? 'View nutrition plan' : 'Start nutrition plan'}</button>
             </section>
             <p className="welcome trainer-credentials">Licensed &amp; insured NASM personal trainer · Your goals. Your pace.</p>
           </>

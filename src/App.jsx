@@ -411,6 +411,13 @@ const workout = weeklyWorkouts[selectedDay] || []
               <section className="stat-card"><p>Workouts this month</p><h3>{monthlyWorkoutCount}</h3></section>
               <section className="stat-card"><p>Exercises in your workout</p><h3>{workout.length}</h3></section>
             </div>
+            <section className="workout-card">
+              <button className="main-button" onClick={() => setScreen('builder')}>{workout.length ? 'Edit Workout' : 'Log Workout'}</button>
+              {workout.length > 0 && <button className="secondary-button" onClick={() => setScreen('workout')}>Resume workout</button>}
+            </section>
+            <section className="workout-card">
+              <button className="main-button" onClick={() => setScreen('nutrition')}>{profile.nutrition || profile.nutritionEntries?.length ? 'View Food Log' : 'Log Food'}</button>
+            </section>
             <section className="reward-card">
               <div className="reward-copy">
                 <p className="small-text">Monthly consistency reward</p>
@@ -422,13 +429,6 @@ const workout = weeklyWorkouts[selectedDay] || []
                 <strong>{Math.min(rewardPoints, 4)}</strong>
                 <span>/ 4</span>
               </div>
-            </section>
-            <section className="workout-card">
-              <button className="main-button" onClick={() => setScreen('builder')}>{workout.length ? 'Edit Workout' : 'Log Workout'}</button>
-              {workout.length > 0 && <button className="secondary-button" onClick={() => setScreen('workout')}>Resume workout</button>}
-            </section>
-            <section className="workout-card">
-              <button className="main-button" onClick={() => setScreen('nutrition')}>{profile.nutrition || profile.nutritionEntries?.length ? 'View Food Log' : 'Log Food'}</button>
             </section>
             <p className="welcome trainer-credentials">Licensed &amp; insured NASM personal trainer · Your goals. Your pace.</p>
           </>

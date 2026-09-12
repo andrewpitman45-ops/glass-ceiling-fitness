@@ -18,31 +18,6 @@ function nutritionPer100g(product) {
   }
 }
 
-const SAVED_FOODS = [
-  { name: 'Greek yogurt', serving: 170, calories: 100, protein: 10, carbs: 3.6, fat: 0.4 },
-  { name: 'Cottage cheese', serving: 113, calories: 90, protein: 12, carbs: 4, fat: 2.5 },
-  { name: 'Egg', serving: 50, calories: 72, protein: 6.3, carbs: 0.4, fat: 4.8 },
-  { name: 'Chicken breast', serving: 140, calories: 231, protein: 43.4, carbs: 0, fat: 5 },
-  { name: 'Salmon', serving: 140, calories: 291, protein: 31.2, carbs: 0, fat: 17.5 },
-  { name: 'Lean ground beef', serving: 113, calories: 244, protein: 29.5, carbs: 0, fat: 13 },
-  { name: 'Tofu', serving: 100, calories: 76, protein: 8, carbs: 1.9, fat: 4.8 },
-  { name: 'Black beans', serving: 130, calories: 114, protein: 7.6, carbs: 20.4, fat: 0.5 },
-  { name: 'Brown rice', serving: 195, calories: 216, protein: 5, carbs: 44.8, fat: 1.8 },
-  { name: 'Oatmeal', serving: 234, calories: 166, protein: 5.9, carbs: 28.1, fat: 3.6 },
-  { name: 'Whole wheat bread', serving: 64, calories: 158, protein: 8, carbs: 26.5, fat: 2.4 },
-  { name: 'Quinoa', serving: 185, calories: 222, protein: 8.1, carbs: 39.4, fat: 3.6 },
-  { name: 'Sweet potato', serving: 180, calories: 162, protein: 3.6, carbs: 37.2, fat: 0.3 },
-  { name: 'Avocado', serving: 100, calories: 160, protein: 2, carbs: 8.5, fat: 14.7 },
-  { name: 'Banana', serving: 118, calories: 105, protein: 1.3, carbs: 27, fat: 0.4 },
-  { name: 'Apple', serving: 182, calories: 95, protein: 0.5, carbs: 25.1, fat: 0.3 },
-  { name: 'Blueberries', serving: 148, calories: 84, protein: 1.1, carbs: 21.4, fat: 0.5 },
-  { name: 'Broccoli', serving: 156, calories: 53, protein: 3.7, carbs: 10.8, fat: 0.6 },
-  { name: 'Mixed salad greens', serving: 85, calories: 20, protein: 1.7, carbs: 3.1, fat: 0.3 },
-  { name: 'Almonds', serving: 28, calories: 164, protein: 6, carbs: 6.1, fat: 14.2 },
-  { name: 'Peanut butter', serving: 32, calories: 188, protein: 8, carbs: 6.3, fat: 16 },
-  { name: 'Hummus', serving: 30, calories: 50, protein: 2.4, carbs: 4.2, fat: 2.8 },
-]
-
 export default function Nutrition({ profile, onSave }) {
   const [plan, setPlan] = useState(profile.nutrition || '')
   const [entries, setEntries] = useState(Array.isArray(profile.nutritionEntries) ? profile.nutritionEntries : [])
@@ -118,20 +93,6 @@ export default function Nutrition({ profile, onSave }) {
     setFoodSearchStatus('Nutrition loaded from Open Food Facts. Check the serving size before adding it.')
   }
 
-  function applySavedFood(savedFood) {
-    setServingGrams(String(savedFood.serving))
-    applyFood({
-      product_name: savedFood.name,
-      nutriments: {
-        'energy-kcal_100g': savedFood.calories / savedFood.serving * 100,
-        proteins_100g: savedFood.protein / savedFood.serving * 100,
-        carbohydrates_100g: savedFood.carbs / savedFood.serving * 100,
-        fat_100g: savedFood.fat / savedFood.serving * 100,
-      },
-    }, savedFood.serving)
-    setFoodSearchStatus('Saved food loaded. Adjust the serving size before adding it.')
-  }
-
   function changeServingSize(value) {
     setServingGrams(value)
     if (selectedFood) applyFood({ product_name: selectedFood.name, nutriments: {
@@ -194,20 +155,6 @@ export default function Nutrition({ profile, onSave }) {
             <strong>{Math.round(value)}g</strong>
           </div>
         ))}
-      </div>
-      <div className="saved-foods">
-        <div className="saved-foods-heading">
-          <h4>Saved foods</h4>
-          <span>Quick picks use the standard serving shown.</span>
-        </div>
-        <div className="saved-food-grid">
-          {SAVED_FOODS.map(savedFood => (
-            <button type="button" key={savedFood.name} className="saved-food-button" onClick={() => applySavedFood(savedFood)}>
-              <strong>{savedFood.name}</strong>
-              <span>{savedFood.serving}g · {savedFood.calories} cal</span>
-            </button>
-          ))}
-        </div>
       </div>
       <form onSubmit={addFood} className="profile-form nutrition-entry-form">
         <h4>Log a food item</h4>

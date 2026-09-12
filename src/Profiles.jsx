@@ -10,7 +10,6 @@ export function ProfileForm({ profile, onSave, onCancel }) {
   const [bodyWeight, setBodyWeight] = useState(profile?.bodyWeight || '')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
-  const supportedClient = clientType === 'youre-with-us'
 
   async function submit(event) {
     event.preventDefault()
@@ -28,30 +27,21 @@ export function ProfileForm({ profile, onSave, onCancel }) {
     <form onSubmit={submit} className="profile-form">
       <label htmlFor="profile-name">Your name</label>
       <input id="profile-name" autoComplete="given-name" maxLength={40} required value={name} onChange={event => setName(event.target.value)} />
-      <fieldset className={`client-options${supportedClient ? ' support-selected' : ''}`}>
+      <fieldset className="client-options">
         <legend>How are you joining us?</legend>
-        <label className={clientType === 'independent' ? 'selected-client' : ''}><input type="radio" name="client-type" value="independent" checked={clientType === 'independent'} onChange={event => setClientType(event.target.value)} /><span>I'm joining independently<small>Fitness and nutrition planning around my goals.</small></span></label>
-        <label className={supportedClient ? 'selected-client' : ''}><input type="radio" name="client-type" value="youre-with-us" checked={supportedClient} onChange={event => setClientType(event.target.value)} /><span>I'm joining through You're With Us<small>Personalized fitness for people with disabilities, with support shaped around me.</small></span></label>
+        <label><input type="radio" name="client-type" value="independent" checked={clientType === 'independent'} onChange={event => setClientType(event.target.value)} /><span>I'm joining independently<small>Fitness and nutrition planning around my goals.</small></span></label>
+        <label><input type="radio" name="client-type" value="youre-with-us" checked={clientType === 'youre-with-us'} onChange={event => setClientType(event.target.value)} /><span>I'm joining through You're With Us<small>Personalized fitness for people with disabilities, with support shaped around me.</small></span></label>
       </fieldset>
-      {supportedClient ? (
-        <div className="support-choice-message">
-          <strong>You're With Us support is selected</strong>
-          <span>We'll keep setup simple. Your trainer can help shape your plan around your pace, preferences, and accessibility needs.</span>
-        </div>
-      ) : (
-        <>
-          <p className="small-text">Tell us how you're joining. Your preferences and choices matter.</p>
-          <label htmlFor="profile-goal">Fitness goal</label>
-          <select id="profile-goal" value={goal} onChange={event => setGoal(event.target.value)}>
-            {goals.map(item => <option key={item}>{item}</option>)}
-          </select>
-          <label htmlFor="profile-body-weight">Body weight (lb, optional)</label>
-          <input id="profile-body-weight" type="number" min="1" max="1000" value={bodyWeight} onChange={event => setBodyWeight(event.target.value)} />
-          <p className="small-text">Used to personalize calorie estimates. A default of 150 lb is used when this is blank.</p>
-        </>
-      )}
+      <p className="small-text">Tell us how you're joining. Your preferences, accessibility needs, and choices matter in either option.</p>
+      <label htmlFor="profile-goal">Fitness goal</label>
+      <select id="profile-goal" value={goal} onChange={event => setGoal(event.target.value)}>
+        {goals.map(item => <option key={item}>{item}</option>)}
+      </select>
+      <label htmlFor="profile-body-weight">Body weight (lb, optional)</label>
+      <input id="profile-body-weight" type="number" min="1" max="1000" value={bodyWeight} onChange={event => setBodyWeight(event.target.value)} />
+      <p className="small-text">Used to personalize calorie estimates. A default of 150 lb is used when this is blank.</p>
       {error && <p className="form-error" role="alert">{error}</p>}
-      <button className="main-button" disabled={busy} type="submit">{busy ? 'Saving…' : profile ? 'Save profile' : supportedClient ? 'Continue to my simple plan' : 'Create profile & continue'}</button>
+      <button className="main-button" disabled={busy} type="submit">{busy ? 'Saving…' : profile ? 'Save profile' : 'Create profile & continue'}</button>
       {onCancel && <button className="secondary-button" type="button" onClick={onCancel}>Cancel</button>}
     </form>
   )

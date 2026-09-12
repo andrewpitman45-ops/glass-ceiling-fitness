@@ -11,20 +11,12 @@ const exerciseLibrary = {
     'Treadmill Walking',
     'Incline Treadmill Walking',
     'Easy Recovery Walking',
-    'Elliptical',
-    'Stationary Cycling',
-    'Rowing Machine',
-    'Stair Climber',
-    'Jumping Jacks',
   ],
 
   Chest: [
     'Dumbbell Bench Press',
     'Incline Dumbbell Press',
     'Push-ups',
-    'Chest Fly Machine',
-    'Cable Chest Press',
-    'Dumbbell Pullover',
   ],
 
   Back: [
@@ -32,26 +24,17 @@ const exerciseLibrary = {
     'One-Arm Dumbbell Rows',
     'Pull-ups',
     'Dumbbell Pullovers',
-    'Lat Pulldown',
-    'Seated Cable Row',
-    'Back Extension',
   ],
 
   Shoulders: [
     'Dumbbell Shoulder Press',
     'Dumbbell Lateral Raises',
     'Dumbbell Reverse Flies',
-    'Front Raises',
-    'Arnold Press',
-    'Cable Face Pulls',
   ],
 
   Biceps: [
     'Dumbbell Bicep Curls',
     'Hammer Curls',
-    'Incline Dumbbell Curls',
-    'Cable Curls',
-    'Preacher Curls',
   ],
 
   Triceps: [
@@ -59,9 +42,6 @@ const exerciseLibrary = {
     'Push-ups',
     'Bench Press',
     'Incline Press',
-    'Triceps Pushdowns',
-    'Dumbbell Kickbacks',
-    'Close-Grip Bench Press',
   ],
 
   'Quadriceps / Front of Legs': [
@@ -69,9 +49,6 @@ const exerciseLibrary = {
     'Leg Extension',
     'Bulgarian Split Squats',
     'Reverse Lunges',
-    'Goblet Squats',
-    'Step-ups',
-    'Bodyweight Squats',
   ],
 
   'Hamstrings / Glutes': [
@@ -79,23 +56,16 @@ const exerciseLibrary = {
     'Romanian Deadlifts',
     'Bulgarian Split Squats',
     'Reverse Lunges',
-    'Hip Thrusts',
-    'Glute Bridges',
-    'Good Mornings',
   ],
 
   Hips: [
     'Hip Abductor',
     'Hip Adductor',
-    'Banded Lateral Walks',
-    'Clamshells',
   ],
 
   Calves: [
     'Calf Raise Machine',
     'Standing Dumbbell Calf Raises',
-    'Seated Calf Raises',
-    'Single-Leg Calf Raises',
   ],
 
   'Core / Abs': [
@@ -105,51 +75,22 @@ const exerciseLibrary = {
     'Plank',
     'Side Plank',
     'Dumbbell Suitcase Hold',
-    'Dead Bug',
-    'Bird Dog',
-    'Russian Twists',
-    'Pallof Press',
   ],
 
   'Recovery / Mobility': [
     'Easy Walking',
     'Light Stretching',
     'Complete Rest Day',
-    'Yoga Flow',
-    'Foam Rolling',
-    'Hip Flexor Stretch',
-    'Shoulder Mobility',
   ],
 }
-
-const cardioExercises = new Set([
-  'Treadmill Walking',
-  'Incline Treadmill Walking',
-  'Easy Recovery Walking',
-  'Easy Walking',
-  'Elliptical',
-  'Stationary Cycling',
-  'Rowing Machine',
-  'Stair Climber',
-  'Jumping Jacks',
-])
 
 const exerciseMetValues = {
   'Treadmill Walking': 3.5,
   'Incline Treadmill Walking': 5,
   'Easy Recovery Walking': 2.8,
   'Easy Walking': 2.8,
-  Elliptical: 5,
-  'Stationary Cycling': 5.5,
-  'Rowing Machine': 6,
-  'Stair Climber': 8,
-  'Jumping Jacks': 8,
   'Light Stretching': 2.3,
   'Complete Rest Day': 1.2,
-  'Yoga Flow': 2.5,
-  'Foam Rolling': 2,
-  'Hip Flexor Stretch': 2.3,
-  'Shoulder Mobility': 2.3,
   'Push-ups': 8,
   Plank: 3.5,
   'Side Plank': 3.5,
@@ -277,7 +218,9 @@ const workout = weeklyWorkouts[selectedDay] || []
       return
     }
 
-    const isCardio = cardioExercises.has(name)
+    const isCardio =
+      name.includes('Walking') ||
+      name === 'Easy Walking'
 
     const newExercise = {
       name,
@@ -411,17 +354,17 @@ const workout = weeklyWorkouts[selectedDay] || []
     </div>
   )
 
-  const supportedClient = profile.clientType === 'youre-with-us'
-
   const navigation = (
     <nav className="profile-nav" aria-label="Profile navigation">
       <button className="sign-out" onClick={() => setScreen('home')}>{profile.name}</button>
-      {!supportedClient && <button className="sign-out" onClick={() => setScreen('nutrition')}>Nutrition</button>}
-      {!supportedClient && <button className="sign-out" onClick={() => setScreen('calories')}>Calories burned</button>}
+      <button className="sign-out" onClick={() => setScreen('nutrition')}>Nutrition</button>
+      <button className="sign-out" onClick={() => setScreen('calories')}>Calories burned</button>
       <button className="sign-out" disabled={saving} onClick={signOut}>Sign out</button>
     </nav>
   )
   const notice = <>{saving && <p className="welcome" role="status">Saving changes...</p>}{storageError && <div className="storage-error" role="alert">{storageError} <button className="secondary-button" disabled={saving} onClick={() => updateProfile({})}>Retry save</button></div>}</>
+
+  const supportedClient = profile.clientType === 'youre-with-us'
 
   if (screen === 'nutrition') {
     return <main className="dashboard">
@@ -457,34 +400,6 @@ const workout = weeklyWorkouts[selectedDay] || []
             <h3>Edit profile</h3>
             <ProfileForm profile={profile} onSave={saveDetails} onCancel={() => setScreen('home')} />
           </section>
-        ) : supportedClient ? (
-          <>
-            <section className="support-intro">
-              <p className="small-text">Your plan, made to fit you</p>
-              <h3>One step at a time.</h3>
-              <p>Choose a session when you are ready. You can adjust or pause at any point.</p>
-            </section>
-            {daySelector}
-            <section className="support-action-card">
-              <div>
-                <p className="small-text">{selectedDay.charAt(0).toUpperCase() + selectedDay.slice(1)} session</p>
-                <h3>{workout.length ? `${workout.length} exercises ready` : 'Your first session is waiting'}</h3>
-                <p className="small-text">{workout.length ? 'Follow your plan at your own pace.' : 'Your trainer can help choose movements that work for you.'}</p>
-              </div>
-              <button className="main-button" onClick={() => setScreen(workout.length ? 'workout' : 'builder')}>
-                {workout.length ? 'Start session' : 'Set up my session'}
-              </button>
-            </section>
-            <div className="support-links">
-              <button className="secondary-button" onClick={() => setScreen('nutrition')}>Nutrition plan</button>
-              <button className="secondary-button" onClick={() => setScreen('calories')}>My progress</button>
-              <button className="secondary-button" onClick={() => setScreen('profile')}>Edit my details</button>
-            </div>
-            <section className="support-stats">
-              <div><strong>{monthlyWorkoutCount}</strong><span>sessions this month</span></div>
-              <div><strong>{rewardPoints}</strong><span>consistency points</span></div>
-            </section>
-          </>
         ) : (
           <>
             <section className="goal-card">
@@ -512,14 +427,14 @@ const workout = weeklyWorkouts[selectedDay] || []
               <h3>Your customized fitness plan</h3>
               <p className="small-text">{supportedClient ? 'You guide your goals. Work with your trainer to choose exercises, adjustments, and support that fit your preferences and accessibility needs.' : 'Build a routine around your goals, schedule, and preferences. Use this space to record your customized workout.'}</p>
               <p className="demo-note">The exercise library is a starting point. Work with your trainer to choose any adjustments you need; exercises do not change automatically based on how you join.</p>
-              <button className="main-button" onClick={() => setScreen('builder')}>{workout.length ? 'Edit saved workout' : 'Log Workout'}</button>
+              <button className="main-button" onClick={() => setScreen('builder')}>{workout.length ? 'Edit saved workout' : 'Build workout'}</button>
               {workout.length > 0 && <button className="secondary-button" onClick={() => setScreen('workout')}>Resume workout</button>}
             </section>
             <section className="workout-card">
               <p className="small-text">Nutrition</p>
               <h3>Planning for everyday life</h3>
               <p className="small-text">{supportedClient ? 'A separate space for meal routines, food preferences, and the practical support that works for you.' : 'Keep meal ideas and your personal nutrition plan alongside your fitness routine.'}</p>
-              <button className="main-button" onClick={() => setScreen('nutrition')}>{profile.nutrition || profile.nutritionEntries?.length ? 'View nutrition plan' : 'Log Food'}</button>
+              <button className="main-button" onClick={() => setScreen('nutrition')}>{profile.nutrition || profile.nutritionEntries?.length ? 'View nutrition plan' : 'Start nutrition plan'}</button>
             </section>
             <p className="welcome trainer-credentials">Licensed &amp; insured NASM personal trainer · Your goals. Your pace.</p>
           </>
@@ -972,3 +887,4 @@ const workout = weeklyWorkouts[selectedDay] || []
 }
 
 export default App
+

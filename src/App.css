@@ -61,18 +61,6 @@ h1, h2, h3, p { margin-top: 0; }
 .goal-card, .workout-card, .stat-card { background: linear-gradient(120deg, #192c3aef, #0f1c29f5); border: 1px solid #334c5d; border-radius: 16px; padding: 26px; box-shadow: 0 12px 32px #0002, inset 0 1px #d2f4ff08; }
 .goal-card, .workout-card { margin-bottom: 20px; }
 .goal-card { border-top: 2px solid #77d9cc; }
-.support-intro { max-width: 620px; margin: 0 auto 24px; text-align: center; }
-.support-intro h3 { font-size: clamp(30px, 5vw, 44px); letter-spacing: -1.5px; margin: 6px 0 10px; }
-.support-intro p:last-child { color: var(--muted); margin-bottom: 0; }
-.support-action-card { max-width: 620px; margin: 0 auto 16px; padding: 26px; background: linear-gradient(120deg, #1d3b43ef, #10232cf5); border: 1px solid #5a8b89; border-radius: 16px; box-shadow: 0 12px 32px #0002; }
-.support-action-card h3 { margin: 5px 0 8px; font-size: 24px; }
-.support-action-card .main-button { margin-top: 22px; }
-.support-links { max-width: 620px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0 auto 20px; }
-.support-links .secondary-button { width: 100%; margin-top: 0; }
-.support-stats { max-width: 620px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0 auto; }
-.support-stats div { display: grid; gap: 3px; padding: 16px; background: #122331; border: 1px solid var(--line); border-radius: 10px; text-align: center; }
-.support-stats strong { color: #b5f9ea; font-size: 26px; }
-.support-stats span { color: var(--muted); font-size: 12px; }
 .goal-card h3, .workout-card h3 { margin: 5px 0 8px; font-size: 22px; }
 .small-text, .stat-card p { color: var(--muted); font-size: 13px; margin-bottom: 0; }
 .stats-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-bottom: 20px; }
@@ -113,7 +101,6 @@ h1, h2, h3, p { margin-top: 0; }
 @media (max-width: 1000px) { .app-shell { gap: 30px; padding: 28px; } .entry-hero h1 { font-size: 52px; letter-spacing: -2.5px; } .login-card { padding: 26px; } }
 @media (max-width: 760px) { .app-shell { grid-template-columns: minmax(0, 1fr); gap: 28px; padding: 24px; } .entry-brand, .entry-footer { grid-column: 1; } .brand-caption { display: none; } .entry-hero { padding: 20px 0 0; } .entry-hero h1 { font-size: clamp(36px, 8vw, 56px); margin: 20px 0; } .hero-copy { font-size: 14px; max-width: 520px; } .hero-rule, .hero-pillars { display: none; } .login-card { width: 100%; max-width: 520px; justify-self: center; } .entry-footer { font-size: 9px; } .category-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .dashboard { padding: 24px 16px; } .top-bar { flex-wrap: wrap; margin-bottom: 28px; } .profile-nav { width: 100%; justify-content: flex-start; } .profile-nav button { flex: 1 1 0; width: auto; max-width: none; } .day-selector { display: flex; overflow-x: auto; justify-content: flex-start; gap: 6px; margin-left: -2px; margin-right: -2px; padding: 2px 2px 6px; scrollbar-width: thin; } .day-selector button { flex: 0 0 82px; } .goal-card, .workout-card, .stat-card { padding: 20px; } }
 @media (max-width: 560px) { .reward-card { align-items: flex-start; padding: 20px; } .reward-pie { flex-basis: 104px; } }
-@media (max-width: 560px) { .support-links { grid-template-columns: 1fr; } .support-action-card { padding: 20px; } }
 @media (max-width: 420px) { .app-shell { padding: 20px 16px; } .login-card { padding: 22px; } .hero-kicker { font-size: 9px; letter-spacing: 1.2px; } .entry-footer { flex-direction: column; gap: 8px; } .profile-nav { gap: 6px; } .profile-nav button { padding-left: 6px; padding-right: 6px; font-size: 12px; } .stats-grid { gap: 10px; } .stat-card { padding: 16px; } .stat-card p { font-size: 11px; } .category-grid { grid-template-columns: 1fr; } .builder-title { align-items: flex-start; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
 
@@ -121,11 +108,7 @@ h1, h2, h3, p { margin-top: 0; }
 .client-options { border: 0; padding: 0; margin: 20px 0 12px; }
 .client-options legend { font-size: 12px; font-weight: 650; }
 .profile-form .client-options label { display: flex; align-items: flex-start; gap: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 9px; cursor: pointer; margin: 8px 0; }
-.client-options label:has(input:checked), .client-options .selected-client { border-color: var(--accent); background: #203c48; }
-.client-options.support-selected { padding: 12px; border: 1px solid #5a8b89; border-radius: 12px; background: #122b32; }
-.client-options.support-selected legend { color: var(--accent); }
-.support-choice-message { display: grid; gap: 7px; margin: 20px 0 8px; padding: 16px; border-left: 3px solid var(--accent); background: #122b32; color: var(--text); }
-.support-choice-message span { color: var(--muted); font-size: 13px; line-height: 1.55; }
+.client-options label:has(input:checked) { border-color: var(--accent); background: #203c48; }
 .profile-form .client-options input { width: 18px; height: 18px; min-height: 18px; margin: 3px 0 0; accent-color: var(--accent); flex-shrink: 0; }
 .client-options small { display: block; color: var(--muted); font-weight: 400; margin-top: 4px; }
 .profile-form textarea { width: 100%; resize: vertical; font: inherit; min-height: 180px; border: 1px solid #3a5061; border-radius: 9px; padding: 14px; background: #091522; color: var(--text); }
@@ -145,14 +128,6 @@ textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; 
 .macro-protein { background: #73d8bb; }
 .macro-carbs { background: #72c6cf; }
 .macro-fat { background: #d9bd75; }
-.saved-foods { margin: 24px 0; padding: 18px; background: #0b1925; border: 1px solid var(--line); border-radius: 10px; }
-.saved-foods-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
-.saved-foods h4 { margin: 0; font-size: 16px; }
-.saved-foods-heading span { color: var(--muted); font-size: 11px; }
-.saved-food-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.saved-food-button { display: grid; gap: 4px; min-height: 58px; padding: 10px; text-align: left; border: 1px solid #304958; border-radius: 8px; background: #132433; color: var(--text); cursor: pointer; }
-.saved-food-button:hover, .saved-food-button:focus-visible { border-color: var(--accent); background: #203c48; }
-.saved-food-button span { color: var(--muted); font-size: 11px; }
 .nutrition-entry-form { border-top: 1px solid var(--line); padding-top: 20px; }
 .nutrition-entry-form h4 { margin: 0 0 4px; font-size: 16px; }
 .nutrition-inputs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
@@ -174,4 +149,4 @@ textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; 
 .account-shell .account-card { width: 100%; margin: 0; }
 .account-actions { display: flex; gap: 10px; }
 button:disabled { cursor: wait; opacity: .6; }
-@media (max-width: 560px) { .nutrition-inputs label:last-child { grid-column: auto; } .saved-foods-heading { display: grid; gap: 4px; } .saved-food-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .nutrition-inputs label:last-child { grid-column: auto; } }

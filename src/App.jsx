@@ -424,12 +424,10 @@ const workout = weeklyWorkouts[selectedDay] || []
               </div>
             </section>
             <section className="workout-card">
-              <p className="small-text">Workout</p>
               <button className="main-button" onClick={() => setScreen('builder')}>{workout.length ? 'Edit Workout' : 'Log Workout'}</button>
               {workout.length > 0 && <button className="secondary-button" onClick={() => setScreen('workout')}>Resume workout</button>}
             </section>
             <section className="workout-card">
-              <p className="small-text">Nutrition</p>
               <button className="main-button" onClick={() => setScreen('nutrition')}>{profile.nutrition || profile.nutritionEntries?.length ? 'View Food Log' : 'Log Food'}</button>
             </section>
             <p className="welcome trainer-credentials">Licensed &amp; insured NASM personal trainer · Your goals. Your pace.</p>

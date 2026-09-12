@@ -424,17 +424,13 @@ const workout = weeklyWorkouts[selectedDay] || []
               </div>
             </section>
             <section className="workout-card">
-              <h3>Your customized fitness plan</h3>
-              <p className="small-text">{supportedClient ? 'You guide your goals. Work with your trainer to choose exercises, adjustments, and support that fit your preferences and accessibility needs.' : 'Build a routine around your goals, schedule, and preferences. Use this space to record your customized workout.'}</p>
-              <p className="demo-note">The exercise library is a starting point. Work with your trainer to choose any adjustments you need; exercises do not change automatically based on how you join.</p>
-              <button className="main-button" onClick={() => setScreen('builder')}>{workout.length ? 'Edit saved workout' : 'Build workout'}</button>
+              <p className="small-text">Workout</p>
+              <button className="main-button" onClick={() => setScreen('builder')}>{workout.length ? 'Edit Workout' : 'Log Workout'}</button>
               {workout.length > 0 && <button className="secondary-button" onClick={() => setScreen('workout')}>Resume workout</button>}
             </section>
             <section className="workout-card">
               <p className="small-text">Nutrition</p>
-              <h3>Planning for everyday life</h3>
-              <p className="small-text">{supportedClient ? 'A separate space for meal routines, food preferences, and the practical support that works for you.' : 'Keep meal ideas and your personal nutrition plan alongside your fitness routine.'}</p>
-              <button className="main-button" onClick={() => setScreen('nutrition')}>{profile.nutrition || profile.nutritionEntries?.length ? 'View nutrition plan' : 'Start nutrition plan'}</button>
+              <button className="main-button" onClick={() => setScreen('nutrition')}>{profile.nutrition || profile.nutritionEntries?.length ? 'View Food Log' : 'Log Food'}</button>
             </section>
             <p className="welcome trainer-credentials">Licensed &amp; insured NASM personal trainer · Your goals. Your pace.</p>
           </>
@@ -887,4 +883,3 @@ const workout = weeklyWorkouts[selectedDay] || []
 }
 
 export default App
-

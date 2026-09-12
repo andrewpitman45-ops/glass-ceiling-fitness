@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { dunkinFoods } from './dunkinFoods'
 
 function today() {
   return new Date().toISOString().slice(0, 10)
@@ -48,8 +49,10 @@ export default function Nutrition({ profile, onSave }) {
       return undefined
     }
 
+    const localResults = dunkinFoods.filter(product => product.product_name.toLowerCase().includes(searchTerm.toLowerCase()))
     const controller = new AbortController()
     const timeout = setTimeout(async () => {
+      setFoodResults(localResults)
       setFoodSearchStatus('Searching foods...')
       try {
         const params = new URLSearchParams({
@@ -64,12 +67,14 @@ export default function Nutrition({ profile, onSave }) {
         if (!response.ok) throw new Error('Food search failed')
         const result = await response.json()
         const products = (result.products || []).filter(product => product.product_name && product.nutriments)
-        setFoodResults(products)
-        setFoodSearchStatus(products.length ? '' : 'No matching foods found. You can enter the values manually.')
+        const localCodes = new Set(localResults.map(product => product.code))
+        const mergedProducts = [...localResults, ...products.filter(product => !localCodes.has(product.code))]
+        setFoodResults(mergedProducts)
+        setFoodSearchStatus(mergedProducts.length ? '' : 'No matching foods found. You can enter the values manually.')
       } catch (error) {
         if (error.name !== 'AbortError') {
-          setFoodResults([])
-          setFoodSearchStatus('Food lookup unavailable. Enter the values manually.')
+          setFoodResults(localResults)
+          setFoodSearchStatus(localResults.length ? '' : 'Food lookup unavailable. Enter the values manually.')
         }
       }
     }, 350)

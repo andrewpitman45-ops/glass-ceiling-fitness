@@ -356,6 +356,7 @@ const workout = weeklyWorkouts[selectedDay] || []
 
   const navigation = (
     <nav className="profile-nav" aria-label="Profile navigation">
+      <button className="gear-button" aria-label="Open profile settings" title="Profile settings" onClick={() => setScreen('profile')}>⚙</button>
       <button className="sign-out" onClick={() => setScreen('home')}>{profile.name}</button>
       <button className="sign-out" onClick={() => setScreen('nutrition')}>Nutrition</button>
       <button className="sign-out" onClick={() => setScreen('calories')}>Calories burned</button>
@@ -402,15 +403,12 @@ const workout = weeklyWorkouts[selectedDay] || []
           </section>
         ) : (
           <>
-            <section className="goal-card">
-              <p className="small-text">Your fitness goal</p><h3>{profile.goal}</h3>
-              <button className="secondary-button" onClick={() => setScreen('profile')}>Edit profile</button>
-            </section>
             {daySelector}
             <div className="stats-grid">
               <section className="stat-card"><p>Workouts this month</p><h3>{monthlyWorkoutCount}</h3></section>
               <section className="stat-card"><p>Exercises in your workout</p><h3>{workout.length}</h3></section>
             </div>
+            <p className="small-text selected-day-label">{selectedDay.charAt(0).toUpperCase() + selectedDay.slice(1)}</p>
             <section className="workout-card">
               <button className="main-button" onClick={() => setScreen('builder')}>{workout.length ? 'Edit Workout' : 'Log Workout'}</button>
               {workout.length > 0 && <button className="secondary-button" onClick={() => setScreen('workout')}>Resume workout</button>}

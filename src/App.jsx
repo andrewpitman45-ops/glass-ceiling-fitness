@@ -93,7 +93,8 @@ function estimateCalories(exercise, bodyWeight) {
     const cardioMinutes = minutes > 0 ? minutes : distance > 0 ? distance * 10 : 0
     if (!Number.isFinite(cardioMinutes) || cardioMinutes <= 0) return 0
     const incline = Math.max(0, Number(exercise.incline) || 0)
-    const met = 3.5 + Math.min(incline, 20) * 0.15
+    const speed = Math.max(0, Number(exercise.speed) || 0)
+    const met = 3.5 + Math.min(incline, 20) * 0.15 + Math.min(speed, 12) * 0.08
     return Math.round(met * 3.5 * (weightInPounds / 2.205) / 200 * cardioMinutes)
   }
   const sets = Number(exercise.sets)
@@ -232,6 +233,7 @@ const workout = weeklyWorkouts[selectedDay] || []
       weight: '',
       time: isCardio ? '' : undefined,
       distance: isCardio ? '' : undefined,
+      speed: isCardio ? '' : undefined,
       incline: isCardio ? '' : undefined,
     }
 
@@ -603,6 +605,16 @@ const workout = weeklyWorkouts[selectedDay] || []
                     />
                   </label>
                   <label>
+                    Speed (mph)
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      value={exercise.speed || ''}
+                      onChange={(event) => updateExercise(exercise.name, 'speed', event.target.value)}
+                    />
+                  </label>
+                  <label>
                     Distance (mi)
                     <input
                       type="number"
@@ -787,8 +799,9 @@ const workout = weeklyWorkouts[selectedDay] || []
                 {exercise.cardio || exercise.minutes !== undefined ? (
                   <p>
                     {exercise.time || exercise.minutes ? `${exercise.time || exercise.minutes} minutes` : 'Time not set'}
-                    {exercise.distance && ` · ${exercise.distance} mi`}
+                    {exercise.speed && ` · ${exercise.speed} mph`}
                     {exercise.incline && ` · Incline ${exercise.incline}%`}
+                    {exercise.distance && ` · ${exercise.distance} mi`}
                   </p>
                 ) : (
                   <p>

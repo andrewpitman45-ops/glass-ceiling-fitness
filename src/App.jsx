@@ -72,6 +72,7 @@ const exerciseLibrary = {
   'Core / Abs': [
     'Reverse Crunches',
     'Hanging Leg Raises',
+    'Flutter Kicks',
     'Weighted Sit-ups',
     'Plank',
     'Side Plank',

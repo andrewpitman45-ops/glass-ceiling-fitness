@@ -4,6 +4,41 @@ import Brand from './Brand'
 import { ProfileForm } from './Profiles'
 import { supabase } from './supabase'
 
+const WORKOUT_RESET_VERSION = 1
+const EMPTY_WEEKLY_WORKOUTS = {
+  monday: [],
+  tuesday: [],
+  wednesday: [],
+  thursday: [],
+  friday: [],
+  saturday: [],
+  sunday: [],
+}
+
+function resetWorkoutData(profile) {
+  return {
+    ...profile,
+    weeklyWorkouts: {
+      monday: [],
+      tuesday: [],
+      wednesday: [],
+      thursday: [],
+      friday: [],
+      saturday: [],
+      sunday: [],
+    },
+    workoutHistory: [],
+    caloriesBurned: [],
+    completed: [],
+    monthlyWorkoutDates: [],
+    completedWeeks: [],
+    rewardPoints: 0,
+    sessions: 0,
+    rewardMonth: new Date().toISOString().slice(0, 7),
+    workoutResetVersion: WORKOUT_RESET_VERSION,
+  }
+}
+
 function AccountForm({ recovery, onRecovered }) {
   const [mode, setMode] = useState('login')
   const [email, setEmail] = useState('')
@@ -238,7 +273,7 @@ function Member({ user, onSignOut }) {
       .select('data')
       .eq('user_id', user.id)
       .maybeSingle()
-      .then(({ data, error }) => {
+      .then(async ({ data, error }) => {
         if (!active) {
           return
         }
@@ -251,24 +286,33 @@ function Member({ user, onSignOut }) {
 
         if (data) {
           const saved = data.data
+          const needsWorkoutReset = saved.workoutResetVersion !== WORKOUT_RESET_VERSION
+          const nextProfile = needsWorkoutReset ? resetWorkoutData(saved) : saved
+
+          if (needsWorkoutReset) {
+            const { error: resetError } = await supabase
+              .from('member_profiles')
+              .update({ data: nextProfile })
+              .eq('user_id', user.id)
+
+            if (resetError) {
+              setError(
+                'Unable to reset your workout data. Please retry.'
+              )
+              setLoading(false)
+              return
+            }
+          }
 
           setProfile({
-            ...saved,
+            ...nextProfile,
             id: user.id,
 
             weeklyWorkouts:
-              saved.weeklyWorkouts || {
-                monday: [],
-                tuesday: [],
-                wednesday: [],
-                thursday: [],
-                friday: [],
-                saturday: [],
-                sunday: [],
-              },
+              nextProfile.weeklyWorkouts || EMPTY_WEEKLY_WORKOUTS,
 
             workoutHistory:
-              saved.workoutHistory || [],
+              nextProfile.workoutHistory || [],
           })
         } else {
           setProfile(null)
@@ -296,16 +340,11 @@ function Member({ user, onSignOut }) {
       id: user.id,
 
       weeklyWorkouts: {
-        monday: [],
-        tuesday: [],
-        wednesday: [],
-        thursday: [],
-        friday: [],
-        saturday: [],
-        sunday: [],
+        ...EMPTY_WEEKLY_WORKOUTS,
       },
 
       workoutHistory: [],
+      caloriesBurned: [],
       completed: [],
       rewardMonth: new Date().toISOString().slice(0, 7),
       monthlyWorkoutDates: [],
@@ -313,6 +352,7 @@ function Member({ user, onSignOut }) {
       rewardPoints: 0,
       sessions: 0,
       nutrition: '',
+      workoutResetVersion: WORKOUT_RESET_VERSION,
     }
 
     const { error } = await supabase

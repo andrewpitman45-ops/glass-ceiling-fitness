@@ -53,8 +53,8 @@ h1, h2, h3, p { margin-top: 0; }
 .top-bar { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 0 0 24px; border-bottom: 1px solid #aacbdf24; margin-bottom: 38px; }
 .profile-nav { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
 .profile-nav button { width: 136px; height: 44px; min-height: 44px; max-width: 136px; padding: 8px 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.profile-nav .gear-button { width: 44px; max-width: 44px; padding: 0; background: #285f9f; border-color: #4b83c4; display: grid; place-items: center; }
-.profile-nav .gear-button:hover { background: #3474bd; border-color: #72a7e2; }
+.profile-nav .gear-button { width: 44px; max-width: 44px; padding: 0; background: #274c4f; border-color: #80e4cf; display: grid; place-items: center; box-shadow: 0 0 18px #72e8cf18; }
+.profile-nav .gear-button:hover { background: #356467; border-color: var(--accent); box-shadow: 0 0 22px #72e8cf35; }
 .menu-lines { display: grid; gap: 4px; width: 20px; }
 .menu-lines span { display: block; height: 2px; border-radius: 2px; background: #fff; }
 .day-selector { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; max-width: 1040px; margin: 0 auto 20px; }
@@ -65,6 +65,7 @@ h1, h2, h3, p { margin-top: 0; }
 .selected-day-label { max-width: 1040px; margin: 0 auto 8px; font-weight: 700; }
 .goal-card, .workout-card, .stat-card { background: linear-gradient(120deg, #192c3aef, #0f1c29f5); border: 1px solid #334c5d; border-radius: 16px; padding: 26px; box-shadow: 0 12px 32px #0002, inset 0 1px #d2f4ff08; }
 .goal-card, .workout-card { margin-bottom: 20px; }
+.settings-card { border-top: 2px solid var(--accent); }
 .goal-card { border-top: 2px solid #77d9cc; }
 .goal-card h3, .workout-card h3 { margin: 5px 0 8px; font-size: 22px; }
 .small-text, .stat-card p { color: var(--muted); font-size: 13px; margin-bottom: 0; }

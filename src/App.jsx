@@ -84,24 +84,16 @@ const exerciseLibrary = {
   ],
 }
 
-const exerciseMetValues = {
-  'Treadmill Walking': 3.5,
-  'Incline Treadmill Walking': 5,
-  'Easy Recovery Walking': 2.8,
-  'Easy Walking': 2.8,
-  'Light Stretching': 2.3,
-  'Complete Rest Day': 1.2,
-  'Push-ups': 8,
-  Plank: 3.5,
-  'Side Plank': 3.5,
-}
-
 function estimateCalories(exercise, bodyWeight) {
   const weightInPounds = Number(bodyWeight) > 0 ? Number(bodyWeight) : 150
-  const minutes = Number(exercise.minutes || exercise.duration || 0)
-  const met = exerciseMetValues[exercise.name] || 5
-  if (minutes <= 0) return 0
-  return Math.round(met * 3.5 * (weightInPounds / 2.205) / 200 * minutes)
+  const sets = Number(exercise.sets)
+  const reps = Number(exercise.reps)
+  const weight = Number(exercise.weight)
+  if (!Number.isFinite(sets) || !Number.isFinite(reps) || sets <= 0 || reps <= 0) return 0
+
+  // Use completed volume for a consistent estimate that does not depend on workout time.
+  const effectiveWeight = weight > 0 ? weight : weightInPounds * 0.1
+  return Math.round(sets * reps * (0.25 + effectiveWeight / 50))
 }
 
 function localDate() {
@@ -218,19 +210,11 @@ const workout = weeklyWorkouts[selectedDay] || []
       return
     }
 
-    const isCardio =
-      name.includes('Walking') ||
-      name === 'Easy Walking'
-
     const newExercise = {
       name,
-      sets: isCardio ? '' : '3',
-      reps: isCardio ? '' : '10',
+      sets: '3',
+      reps: '10',
       weight: '',
-      minutes: isCardio ? '10' : '',
-      duration: isCardio ? '' : '30',
-      speed: '',
-      incline: '',
     }
 
     setWorkout([...workout, newExercise])
@@ -397,7 +381,7 @@ const workout = weeklyWorkouts[selectedDay] || []
         {notice}
         <section className="welcome"><p>{supportedClient ? "Your fitness space · Through You're With Us" : 'Your personal fitness space'}</p><h2>Welcome, {profile.name}.</h2></section>
         {screen === 'profile' ? (
-          <section className="workout-card">
+          <section className="workout-card settings-card">
             <h3>Edit profile</h3>
             <ProfileForm profile={profile} onSave={saveDetails} onCancel={() => setScreen('home')} />
           </section>
@@ -570,137 +554,60 @@ const workout = weeklyWorkouts[selectedDay] || []
 
               </div>
 
-              {exercise.minutes !== '' ? (
+              <div className="exercise-inputs">
 
-                <div className="exercise-inputs">
+                <label>
+                  Sets
 
-                  <label>
-                    Minutes
+                  <input
+                    type="number"
+                    min="1"
+                    value={exercise.sets || ''}
+                    onChange={(event) =>
+                      updateExercise(
+                        exercise.name,
+                        'sets',
+                        event.target.value
+                      )
+                    }
+                  />
+                </label>
 
-                    <input
-                      type="number"
-                      value={exercise.minutes}
-                      onChange={(event) =>
-                        updateExercise(
-                          exercise.name,
-                          'minutes',
-                          event.target.value
-                        )
-                      }
-                    />
-                  </label>
+                <label>
+                  Reps
 
-                  <label>
-                    Speed
+                  <input
+                    type="number"
+                    min="1"
+                    value={exercise.reps || ''}
+                    onChange={(event) =>
+                      updateExercise(
+                        exercise.name,
+                        'reps',
+                        event.target.value
+                      )
+                    }
+                  />
+                </label>
 
-                    <input
-                      type="number"
-                      step="0.1"
-                      placeholder="mph"
-                      value={exercise.speed}
-                      onChange={(event) =>
-                        updateExercise(
-                          exercise.name,
-                          'speed',
-                          event.target.value
-                        )
-                      }
-                    />
-                  </label>
+                <label>
+                  Weight (lb)
 
-                  <label>
-                    Incline
-
-                    <input
-                      type="number"
-                      placeholder="%"
-                      value={exercise.incline}
-                      onChange={(event) =>
-                        updateExercise(
-                          exercise.name,
-                          'incline',
-                          event.target.value
-                        )
-                      }
-                    />
-                  </label>
-
-                </div>
-
-              ) : (
-
-                <div className="exercise-inputs">
-
-                  <label>
-                    Sets
-
-                    <input
-                      type="number"
-                      value={exercise.sets}
-                      onChange={(event) =>
-                        updateExercise(
-                          exercise.name,
-                          'sets',
-                          event.target.value
-                        )
-                      }
-                    />
-                  </label>
-
-                  <label>
-                    Reps
-
-                    <input
-                      type="number"
-                      value={exercise.reps}
-                      onChange={(event) =>
-                        updateExercise(
-                          exercise.name,
-                          'reps',
-                          event.target.value
-                        )
-                      }
-                    />
-                  </label>
-
-                  <label>
-                    Duration
-
-                    <input
-                      type="number"
-                      min="1"
-                      placeholder="minutes"
-                      value={exercise.duration || ''}
-                      onChange={(event) =>
-                        updateExercise(
-                          exercise.name,
-                          'duration',
-                          event.target.value
-                        )
-                      }
-                    />
-                  </label>
-
-                  <label>
-                    Weight
-
-                    <input
-                      type="number"
-                      placeholder="lbs"
-                      value={exercise.weight}
-                      onChange={(event) =>
-                        updateExercise(
-                          exercise.name,
-                          'weight',
-                          event.target.value
-                        )
-                      }
-                    />
-                  </label>
-
-                </div>
-
-              )}
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="bodyweight"
+                    value={exercise.weight || ''}
+                    onChange={(event) =>
+                      updateExercise(
+                        exercise.name,
+                        'weight',
+                        event.target.value
+                      )
+                    }
+                  />
+                </label>
+              </div>
 
               <p className="calorie-estimate">
                 Estimated calories: {estimateCalories(exercise, profile.bodyWeight)}
@@ -806,31 +713,10 @@ const workout = weeklyWorkouts[selectedDay] || []
                   {exercise.name}
                 </h3>
 
-                {exercise.minutes !== '' ? (
-
-                  <p>
-                    {exercise.minutes} minutes
-
-                    {exercise.speed &&
-                      ` · ${exercise.speed} mph`}
-
-                    {exercise.incline &&
-                      ` · Incline ${exercise.incline}`}
-                  </p>
-
-                ) : (
-
-                  <p>
-                    {exercise.sets} sets × {exercise.reps} reps
-
-                    {exercise.duration &&
-                      ` · ${exercise.duration} minutes`}
-
-                    {exercise.weight &&
-                      ` · ${exercise.weight} lbs`}
-                  </p>
-
-                )}
+                <p>
+                  {exercise.sets || 0} sets × {exercise.reps || 0} reps
+                  {exercise.weight && ` · ${exercise.weight} lbs`}
+                </p>
 
                 <p className="calorie-estimate">
                   Estimated calories: {estimateCalories(exercise, profile.bodyWeight)}

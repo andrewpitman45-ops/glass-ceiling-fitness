@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { dunkinFoods } from './dunkinFoods'
+import { localFoods } from './dunkinFoods'
 
 function today() {
   return new Date().toISOString().slice(0, 10)
@@ -7,6 +7,10 @@ function today() {
 
 function numberOrZero(value) {
   return Number.isFinite(Number(value)) ? Number(value) : 0
+}
+
+function normalizeSearch(value) {
+  return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
 }
 
 function nutritionPer100g(product) {
@@ -49,7 +53,21 @@ export default function Nutrition({ profile, onSave }) {
       return undefined
     }
 
-    const localResults = dunkinFoods.filter(product => product.product_name.toLowerCase().includes(searchTerm.toLowerCase()))
+    const normalizedTerm = normalizeSearch(searchTerm)
+    const searchWords = normalizedTerm.split(' ')
+    const localResults = localFoods
+      .map(product => {
+        const name = normalizeSearch(product.product_name)
+        const brand = normalizeSearch(product.brands || '')
+        const score = searchWords.reduce((total, word) => total + (name.includes(word) || brand.includes(word) ? 1 : 0), 0)
+          + (name.startsWith(normalizedTerm) ? 2 : 0)
+          + (brand === normalizedTerm ? 3 : 0)
+        return { product, score }
+      })
+      .filter(result => result.score >= searchWords.length)
+      .sort((a, b) => b.score - a.score || a.product.product_name.localeCompare(b.product.product_name))
+      .map(result => result.product)
+      .slice(0, 8)
     const controller = new AbortController()
     const timeout = setTimeout(async () => {
       setFoodResults(localResults)
@@ -95,7 +113,9 @@ export default function Nutrition({ profile, onSave }) {
     setCarbs(String(Math.round(per100g.carbs * multiplier * 10) / 10))
     setFat(String(Math.round(per100g.fat * multiplier * 10) / 10))
     setFoodResults([])
-    setFoodSearchStatus('Nutrition loaded from Open Food Facts. Check the serving size before adding it.')
+    setFoodSearchStatus(product.code?.startsWith('starbucks-') || product.code?.startsWith('creamer-') || product.code?.startsWith('dunkin-')
+      ? 'Nutrition loaded from the local food catalog. Check the serving size before adding it.'
+      : 'Nutrition loaded from Open Food Facts. Check the serving size before adding it.')
   }
 
   function changeServingSize(value) {

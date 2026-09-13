@@ -347,7 +347,7 @@ const workout = weeklyWorkouts[selectedDay] || []
         <button className="gear-button" aria-expanded={menuOpen} aria-label="Open profile settings menu" title="Profile settings" onClick={() => setMenuOpen(!menuOpen)}><span className="menu-lines" aria-hidden="true"><span></span><span></span><span></span></span></button>
         {menuOpen && (
           <div className="settings-menu-panel">
-            <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('home') }}>Profile settings</button>
+            <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('home') }}>Workouts</button>
             <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('weight') }}>Weight tracker</button>
             <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('nutrition') }}>Nutrition</button>
             <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('calories') }}>Calories burned</button>

@@ -96,6 +96,7 @@ h1, h2, h3, p { margin-top: 0; }
 .builder-exercise, .active-workout-card { padding: 20px 0; border-bottom: 1px solid var(--line); }
 .builder-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .exercise-inputs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 15px; }
+.cardio-inputs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .exercise-inputs label { font-size: 12px; color: var(--muted); }
 .exercise-inputs input { display: block; margin-top: 6px; padding: 10px; }
 .calorie-estimate { color: var(--accent); font-size: 13px; }

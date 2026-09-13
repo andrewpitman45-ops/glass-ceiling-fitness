@@ -55,6 +55,10 @@ h1, h2, h3, p { margin-top: 0; }
 .profile-nav button { width: 136px; height: 44px; min-height: 44px; max-width: 136px; padding: 8px 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .profile-nav .gear-button { width: 44px; max-width: 44px; padding: 0; background: #142433; border-color: #405565; display: grid; place-items: center; }
 .profile-nav .gear-button:hover, .profile-nav .gear-button:focus-visible { background: #274c4f; border-color: var(--accent); box-shadow: 0 0 22px #72e8cf35; }
+.settings-menu { position: relative; }
+.settings-menu-panel { position: absolute; z-index: 10; top: calc(100% + 8px); right: 0; min-width: 160px; padding: 6px; background: linear-gradient(140deg, #1a2c3a, #0c1723); border: 1px solid #456171; border-radius: 10px; box-shadow: 0 16px 35px #0006; }
+.settings-menu-item { display: block; width: 100%; min-height: 40px; padding: 9px 12px; border: 0; border-radius: 7px; background: transparent; color: var(--text); text-align: left; font-size: 13px; }
+.settings-menu-item:hover, .settings-menu-item:focus-visible { background: #274c4f; color: var(--accent); outline: 0; }
 .menu-lines { display: grid; gap: 4px; width: 20px; }
 .menu-lines span { display: block; height: 2px; border-radius: 2px; background: #fff; }
 .day-selector { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; max-width: 1040px; margin: 0 auto 20px; }

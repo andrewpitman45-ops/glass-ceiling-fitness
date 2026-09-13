@@ -138,6 +138,7 @@ function App({ initialProfile, onSignOut }) {
   const [screen, setScreen] = useState('home')
   const [selectedDay, setSelectedDay] = useState('monday')
   const [selectedCategory, setSelectedCategory] = useState('Cardio')
+  const [menuOpen, setMenuOpen] = useState(false)
   const [profile, setProfile] = useState(() => normalizeRewards(initialProfile))
   const [storageError, setStorageError] = useState('')
   const [saving, setSaving] = useState(false)
@@ -343,8 +344,15 @@ const workout = weeklyWorkouts[selectedDay] || []
       <button className="sign-out" onClick={() => setScreen('home')}>{profile.name}</button>
       <button className="sign-out" onClick={() => setScreen('nutrition')}>Nutrition</button>
       <button className="sign-out" onClick={() => setScreen('calories')}>Calories burned</button>
-      <button className="sign-out" disabled={saving} onClick={signOut}>Sign out</button>
-      <button className="gear-button" aria-label="Open profile settings" title="Profile settings" onClick={() => setScreen('profile')}><span className="menu-lines" aria-hidden="true"><span></span><span></span><span></span></span></button>
+      <div className="settings-menu">
+        <button className="gear-button" aria-expanded={menuOpen} aria-label="Open profile settings menu" title="Profile settings" onClick={() => setMenuOpen(!menuOpen)}><span className="menu-lines" aria-hidden="true"><span></span><span></span><span></span></span></button>
+        {menuOpen && (
+          <div className="settings-menu-panel">
+            <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('profile') }}>Profile settings</button>
+            <button className="settings-menu-item" disabled={saving} onClick={signOut}>Sign out</button>
+          </div>
+        )}
+      </div>
     </nav>
   )
   const notice = <>{saving && <p className="welcome" role="status">Saving changes...</p>}{storageError && <div className="storage-error" role="alert">{storageError} <button className="secondary-button" disabled={saving} onClick={() => updateProfile({})}>Retry save</button></div>}</>

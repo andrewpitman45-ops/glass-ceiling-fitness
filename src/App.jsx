@@ -343,8 +343,8 @@ const workout = weeklyWorkouts[selectedDay] || []
       <button className="sign-out" onClick={() => setScreen('home')}>{profile.name}</button>
       <button className="sign-out" onClick={() => setScreen('nutrition')}>Nutrition</button>
       <button className="sign-out" onClick={() => setScreen('calories')}>Calories burned</button>
-      <button className="gear-button" aria-label="Open profile settings" title="Profile settings" onClick={() => setScreen('profile')}><span className="menu-lines" aria-hidden="true"><span></span><span></span><span></span></span></button>
       <button className="sign-out" disabled={saving} onClick={signOut}>Sign out</button>
+      <button className="gear-button" aria-label="Open profile settings" title="Profile settings" onClick={() => setScreen('profile')}><span className="menu-lines" aria-hidden="true"><span></span><span></span><span></span></span></button>
     </nav>
   )
   const notice = <>{saving && <p className="welcome" role="status">Saving changes...</p>}{storageError && <div className="storage-error" role="alert">{storageError} <button className="secondary-button" disabled={saving} onClick={() => updateProfile({})}>Retry save</button></div>}</>

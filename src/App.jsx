@@ -3,6 +3,7 @@ import './App.css'
 import Brand from './Brand'
 import CaloriesBurned from './CaloriesBurned'
 import Nutrition from './Nutrition'
+import WeightTracker from './WeightTracker'
 import { ProfileForm } from './Profiles'
 import { supabase } from './supabase'
 
@@ -349,6 +350,7 @@ const workout = weeklyWorkouts[selectedDay] || []
         {menuOpen && (
           <div className="settings-menu-panel">
             <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('profile') }}>Profile settings</button>
+            <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('weight') }}>Weight tracker</button>
             <button className="settings-menu-item" disabled={saving} onClick={signOut}>Sign out</button>
           </div>
         )}
@@ -375,6 +377,16 @@ const workout = weeklyWorkouts[selectedDay] || []
       {notice}
       <section className="welcome"><p>Daily activity tracking</p><h2>Calories burned</h2></section>
       <CaloriesBurned key={profile.id} profile={profile} onSave={updateProfile} />
+      <div className="welcome"><button className="secondary-button" onClick={() => setScreen('home')}>Back to my dashboard</button></div>
+    </main>
+  }
+
+  if (screen === 'weight') {
+    return <main className="dashboard">
+      <header className="top-bar"><Brand />{navigation}</header>
+      {notice}
+      <section className="welcome"><p>Progress tracking</p><h2>Weight tracker</h2></section>
+      <WeightTracker key={profile.id} profile={profile} onSave={updateProfile} />
       <div className="welcome"><button className="secondary-button" onClick={() => setScreen('home')}>Back to my dashboard</button></div>
     </main>
   }

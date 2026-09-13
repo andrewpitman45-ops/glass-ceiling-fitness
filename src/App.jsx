@@ -50,6 +50,7 @@ const exerciseLibrary = {
     'Leg Extension',
     'Bulgarian Split Squats',
     'Reverse Lunges',
+    'Goblet Squats',
   ],
 
   'Hamstrings / Glutes': [
@@ -86,6 +87,42 @@ const exerciseLibrary = {
   ],
 }
 
+const workoutMetDatabase = {
+  'Dumbbell Bench Press': 5,
+  'Incline Dumbbell Press': 5,
+  'Push-ups': 3.8,
+  'Dumbbell Rows': 5,
+  'One-Arm Dumbbell Rows': 5,
+  'Pull-ups': 8,
+  'Dumbbell Pullovers': 5,
+  'Dumbbell Shoulder Press': 5,
+  'Dumbbell Lateral Raises': 3.5,
+  'Dumbbell Reverse Flies': 3.5,
+  'Dumbbell Bicep Curls': 3.5,
+  'Hammer Curls': 3.5,
+  'Overhead Triceps Extensions': 3.5,
+  'Bench Press': 5,
+  'Incline Press': 5,
+  'Leg Press': 5,
+  'Leg Extension': 3.5,
+  'Bulgarian Split Squats': 5,
+  'Reverse Lunges': 5,
+  'Goblet Squats': 5,
+  'Seated Leg Curl': 3.5,
+  'Romanian Deadlifts': 5,
+  'Hip Abductor': 3.5,
+  'Hip Adductor': 3.5,
+  'Calf Raise Machine': 3.5,
+  'Standing Dumbbell Calf Raises': 3.5,
+  'Reverse Crunches': 3.8,
+  'Hanging Leg Raises': 3.8,
+  'Weighted Sit-ups': 3.8,
+  'Plank': 3.8,
+  'Side Plank': 3.8,
+  'Dumbbell Suitcase Hold': 3.5,
+  'Flutter Kicks': 3.8,
+}
+
 function estimateCalories(exercise, bodyWeight) {
   const weightInPounds = Number(bodyWeight) > 0 ? Number(bodyWeight) : 150
   if (exercise.cardio || exercise.minutes !== undefined) {
@@ -100,12 +137,14 @@ function estimateCalories(exercise, bodyWeight) {
   }
   const sets = Number(exercise.sets)
   const reps = Number(exercise.reps)
-  const weight = Number(exercise.weight)
   if (!Number.isFinite(sets) || !Number.isFinite(reps) || sets <= 0 || reps <= 0) return 0
 
-  // Use completed volume for a consistent estimate that does not depend on workout time.
-  const effectiveWeight = weight > 0 ? weight : weightInPounds * 0.1
-  return Math.round(sets * reps * (0.25 + effectiveWeight / 50))
+  const kilograms = weightInPounds / 2.205
+  const met = workoutMetDatabase[exercise.name] || 4
+  const activeMinutes = sets * (reps * 4 / 60)
+  const restMinutes = Math.max(0, sets - 1)
+  const totalMinutes = activeMinutes + restMinutes
+  return Math.round(met * 3.5 * kilograms / 200 * totalMinutes)
 }
 
 function localDate() {

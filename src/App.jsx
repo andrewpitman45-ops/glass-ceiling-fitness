@@ -158,6 +158,10 @@ function currentMonth() {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
 }
 
+function youtubeSearchUrl(exerciseName) {
+  return `https://www.youtube.com/results?search_query=${encodeURIComponent(`${exerciseName} proper form`)}`
+}
+
 function weekStart(dateString) {
   const [year, month, day] = dateString.split('-').map(Number)
   const date = new Date(year, month - 1, day)
@@ -409,6 +413,7 @@ const workout = weeklyWorkouts[selectedDay] || []
             <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('weight') }}>Weight tracker</button>
             <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('nutrition') }}>Nutrition</button>
             <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('calories') }}>Calories burned</button>
+            <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('info') }}>Workout info</button>
             <button className="settings-menu-item" disabled={saving} onClick={signOut}>Sign out</button>
           </div>
         )}
@@ -445,6 +450,33 @@ const workout = weeklyWorkouts[selectedDay] || []
       {notice}
       <section className="welcome"><p>Progress tracking</p><h2>Weight tracker</h2></section>
       <WeightTracker key={profile.id} profile={profile} onSave={updateProfile} />
+      <div className="welcome"><button className="secondary-button" onClick={() => setScreen('home')}>Back to my dashboard</button></div>
+    </main>
+  }
+
+  if (screen === 'info') {
+    return <main className="dashboard">
+      <header className="top-bar"><Brand />{navigation}</header>
+      {notice}
+      <section className="welcome"><p>Workout guidance</p><h2>Exercise info</h2></section>
+      <section className="workout-card info-card">
+        <p className="small-text">Move with confidence</p>
+        <h3>Learn each exercise before you begin</h3>
+        <p className="profile-intro">Use the links below to search YouTube for demonstrations of each exercise, including proper form and setup. These are general educational resources; choose variations that fit your body and comfort level.</p>
+        <div className="info-list">
+          {Object.entries(exerciseLibrary).map(([category, exercises]) => (
+            <div className="info-group" key={category}>
+              <h4>{category}</h4>
+              {exercises.map(exercise => (
+                <a className="video-link" href={youtubeSearchUrl(exercise)} target="_blank" rel="noreferrer" key={exercise}>
+                  <span>{exercise}</span>
+                  <span aria-hidden="true">Watch search ↗</span>
+                </a>
+              ))}
+            </div>
+          ))}
+        </div>
+      </section>
       <div className="welcome"><button className="secondary-button" onClick={() => setScreen('home')}>Back to my dashboard</button></div>
     </main>
   }
@@ -576,6 +608,8 @@ const workout = weeklyWorkouts[selectedDay] || []
                 <span>
                   {exercise}
                 </span>
+
+                <a className="exercise-video-link" href={youtubeSearchUrl(exercise)} target="_blank" rel="noreferrer">YouTube</a>
 
                 <button
                   onClick={() =>
@@ -835,6 +869,8 @@ const workout = weeklyWorkouts[selectedDay] || []
                 <h3>
                   {exercise.name}
                 </h3>
+
+                <a className="exercise-video-link" href={youtubeSearchUrl(exercise.name)} target="_blank" rel="noreferrer">Find a video on YouTube ↗</a>
 
                 {exercise.cardio || exercise.minutes !== undefined ? (
                   <p>

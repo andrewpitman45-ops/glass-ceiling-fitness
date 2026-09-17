@@ -13,6 +13,7 @@ const EMPTY_WEEKLY_WORKOUTS = {
   friday: [],
   saturday: [],
   sunday: [],
+  extra: [],
 }
 
 function resetWorkoutData(profile) {
@@ -26,6 +27,7 @@ function resetWorkoutData(profile) {
       friday: [],
       saturday: [],
       sunday: [],
+      extra: [],
     },
     workoutHistory: [],
     caloriesBurned: [],

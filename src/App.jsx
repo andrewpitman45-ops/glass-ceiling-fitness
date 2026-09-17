@@ -208,6 +208,7 @@ function App({ initialProfile, onSignOut }) {
   friday: [],
   saturday: [],
   sunday: [],
+  extra: [],
 }
 
 const workout = weeklyWorkouts[selectedDay] || []
@@ -386,6 +387,7 @@ const workout = weeklyWorkouts[selectedDay] || []
         'friday',
         'saturday',
         'sunday',
+        'extra',
       ].map((day) => (
         <button
           key={day}

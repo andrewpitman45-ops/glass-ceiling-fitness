@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import './App.css'
 import Brand from './Brand'
+import { parseWorkoutPlanText, mergeWorkoutPlan } from './workoutPlan'
 import CaloriesBurned from './CaloriesBurned'
 import Nutrition from './Nutrition'
 import WeightTracker from './WeightTracker'
@@ -162,131 +163,6 @@ function youtubeSearchUrl(exerciseName) {
   return `https://www.youtube.com/results?search_query=${encodeURIComponent(`${exerciseName} proper form`)}`
 }
 
-function parseWorkoutNumber(value) {
-  if (!value) return null
-  const cleaned = String(value).replace(/[–—]/g, '-').replace(/[^0-9.-]/g, '')
-  if (!cleaned) return null
-  const parts = cleaned.split('-').map(part => Number(part)).filter(part => Number.isFinite(part))
-  if (!parts.length) return null
-  return parts.length === 1 ? parts[0] : parts.reduce((total, part) => total + part, 0) / parts.length
-}
-
-function normalizeExerciseName(name) {
-  return String(name || '')
-    .trim()
-    .replace(/\s+/g, ' ')
-    .replace(/\s+(?:-\s*)?$/g, '')
-}
-
-function parseCardioExercise(line) {
-  const cardioMatch = line.match(/^(.+?)\s+(\d+(?:\.\d+)?(?:\s*-\s*\d+(?:\.\d+)?)?)\s*minutes?(?:\s+at\s+(.+))?$/i)
-  if (!cardioMatch) return null
-
-  const name = normalizeExerciseName(cardioMatch[1])
-  const minutes = parseWorkoutNumber(cardioMatch[2])
-  if (!name || !Number.isFinite(minutes)) return null
-
-  const detailText = (cardioMatch[3] || '').trim()
-  const speed = detailText.match(/(\d+(?:\.\d+)?)\s*mph/i)?.[1] || ''
-  const incline = detailText.match(/incline\s+(\d+(?:\.\d+)?)/i)?.[1] || ''
-  const distance = detailText.match(/(\d+(?:\.\d+)?)\s*mi/i)?.[1] || ''
-
-  return {
-    name,
-    cardio: true,
-    time: String(Math.round(minutes)),
-    speed: speed || '',
-    distance: distance || '',
-    incline: incline || '',
-    sets: '',
-    reps: '',
-    weight: '',
-  }
-}
-
-function parseStrengthExercise(line) {
-  const match = line.match(/^(.+?)\s+(\d+)\s*[x×]\s*(\d+(?:\.\d+)?(?:\s*-\s*\d+(?:\.\d+)?)?)\s*(?:at\s+(.+))?$/i)
-  if (!match) return null
-
-  const name = normalizeExerciseName(match[1])
-  const sets = Number(match[2])
-  const repsRaw = match[3]
-  const reps = parseWorkoutNumber(repsRaw)
-  if (!name || !Number.isFinite(sets) || !Number.isFinite(reps) || sets <= 0) return null
-
-  const details = (match[4] || '').trim()
-  const weightMatch = details.match(/(\d+(?:\.\d+)?)\s*(?:-|\s*to\s*|\s*–\s*)?\s*(\d+(?:\.\d+)?)?\s*(?:lb|lbs|kg)/i)
-  const weightValue = weightMatch ? String((Number(weightMatch[1]) + Number(weightMatch[2] || weightMatch[1])) / 2) : ''
-
-  return {
-    name,
-    cardio: false,
-    sets: String(Math.round(sets)),
-    reps: String(Math.round(reps)),
-    weight: weightValue,
-    time: undefined,
-    distance: undefined,
-    speed: undefined,
-    incline: undefined,
-  }
-}
-
-function parseWorkoutPlanText(text, defaultDay = 'monday') {
-  const byDay = {
-    monday: [],
-    tuesday: [],
-    wednesday: [],
-    thursday: [],
-    friday: [],
-    saturday: [],
-    sunday: [],
-    extra: [],
-  }
-
-  if (!text || !text.trim()) {
-    return { [defaultDay]: [] }
-  }
-
-  let currentDay = null
-  const lines = text
-    .replace(/\r/g, '')
-    .split('\n')
-    .map(line => line.replace(/^[-•*]\s*/, '').trim())
-    .filter(Boolean)
-
-  for (const line of lines) {
-    const dayMatch = line.match(/^(monday|tuesday|wednesday|thursday|friday|saturday|sunday|extra)\b/i)
-    if (dayMatch) {
-      currentDay = dayMatch[1].toLowerCase()
-      if (!byDay[currentDay]) {
-        byDay[currentDay] = []
-      }
-      continue
-    }
-
-    if (/before work|after work|morning|evening|warm[- ]?up|cool[- ]?down|rest|focus on|mobility|intervals|rounds|minutes?\s*\/|easy stretching|light jog|steady run|relaxed walk|walk\s+\d|run\s+\d/i.test(line)) {
-      continue
-    }
-
-    const parsedExercise = parseCardioExercise(line) || parseStrengthExercise(line)
-    if (!parsedExercise) continue
-
-    if (!currentDay) {
-      currentDay = defaultDay
-    }
-
-    byDay[currentDay] = byDay[currentDay] || []
-    byDay[currentDay].push(parsedExercise)
-  }
-
-  const dayEntries = Object.entries(byDay).filter(([, exercises]) => exercises.length > 0)
-  if (!dayEntries.length) {
-    return { [defaultDay]: [] }
-  }
-
-  return Object.fromEntries(dayEntries)
-}
-
 function weekStart(dateString) {
   const [year, month, day] = dateString.split('-').map(Number)
   const date = new Date(year, month - 1, day)
@@ -339,6 +215,8 @@ function App({ initialProfile, onSignOut }) {
 
 const workout = weeklyWorkouts[selectedDay] || []
   const completed = profile.completed || []
+  const personalExercises = Object.values(weeklyWorkouts).flat().filter(item => item.prescription)
+  const availableLibrary = { ...exerciseLibrary, ...(personalExercises.length ? { 'My imported exercises': [...new Set(personalExercises.map(item => item.name))] } : {}) }
 
   function updateProfile(changes) {
     const next = { ...latestProfile.current, ...changes }
@@ -367,7 +245,7 @@ const workout = weeklyWorkouts[selectedDay] || []
 
     updateProfile({
       weeklyWorkouts: nextWeeklyWorkouts,
-      completed: completed.filter(name => next.some(item => item.name === name)),
+      completed: completed.filter(name => next.some(item => `${item.session || ""}|${item.name}` === name)),
     })
   }
 
@@ -384,17 +262,11 @@ const workout = weeklyWorkouts[selectedDay] || []
       return
     }
 
-    const nextWeeklyWorkouts = { ...weeklyWorkouts }
-    for (const [day, exercises] of daysWithExercises) {
-      const safeDay = day in nextWeeklyWorkouts ? day : selectedDay
-      const existing = nextWeeklyWorkouts[safeDay] || []
-      const nextExercises = exercises.filter(exercise => !existing.some(item => item.name === exercise.name))
-      nextWeeklyWorkouts[safeDay] = [...existing, ...nextExercises]
-    }
+    const nextWeeklyWorkouts = mergeWorkoutPlan(weeklyWorkouts, parsedPlan)
 
     updateProfile({
       weeklyWorkouts: nextWeeklyWorkouts,
-      completed: completed.filter(name => (nextWeeklyWorkouts[selectedDay] || []).some(item => item.name === name)),
+      completed: completed.filter(name => (nextWeeklyWorkouts[selectedDay] || []).some(item => `${item.session || ""}|${item.name}` === name)),
     })
 
     setPastedWorkout('')
@@ -419,6 +291,11 @@ const workout = weeklyWorkouts[selectedDay] || []
       return
     }
 
+    const imported = personalExercises.find(item => item.name === name)
+    if (imported) {
+      setWorkout([...workout, { ...imported, session: '', dayTitle: '' }])
+      return
+    }
     const isCardio = name.toLowerCase().includes('treadmill') ||
       name.toLowerCase().includes('walking') ||
       name.toLowerCase().includes('stretching')
@@ -437,16 +314,16 @@ const workout = weeklyWorkouts[selectedDay] || []
     setWorkout([...workout, newExercise])
   }
 
-  function removeExercise(name) {
+  function removeExercise(name, session) {
     setWorkout(
-      workout.filter((exercise) => exercise.name !== name)
+      workout.filter((exercise) => exercise.name !== name || (exercise.session || "") !== (session || ""))
     )
   }
 
-  function updateExercise(name, field, value) {
+  function updateExercise(name, field, value, session) {
     setWorkout(
       workout.map((exercise) =>
-        exercise.name === name
+        exercise.name === name && (exercise.session || "") === (session || "")
           ? {
               ...exercise,
               [field]: value,
@@ -618,7 +495,7 @@ const workout = weeklyWorkouts[selectedDay] || []
         <h3>Learn each exercise before you begin</h3>
         <p className="profile-intro">Use the links below to search YouTube for demonstrations of each exercise, including proper form and setup. These are general educational resources; choose variations that fit your body and comfort level.</p>
         <div className="info-list">
-          {Object.entries(exerciseLibrary).map(([category, exercises]) => (
+          {Object.entries(availableLibrary).map(([category, exercises]) => (
             <div className="info-group" key={category}>
               <h4>{category}</h4>
               {exercises.map(exercise => (
@@ -658,6 +535,12 @@ const workout = weeklyWorkouts[selectedDay] || []
             </div>
             <p className="small-text selected-day-label">{selectedDay.charAt(0).toUpperCase() + selectedDay.slice(1)}</p>
             <section className="workout-card">
+              {workout[0]?.dayTitle && <h3>{workout[0].dayTitle}</h3>}
+              {workout.map((item, index) => <div key={index}>
+                {item.session && item.session !== workout[index - 1]?.session && <h4>{item.session}</h4>}
+                <p><strong>{item.name}</strong>{item.prescription && ' ? ' + item.prescription}</p>
+                {item.notes && <p style={{ whiteSpace: 'pre-line' }}>{item.notes}</p>}
+              </div>)}
               <button className="main-button" onClick={() => setScreen('builder')}>{workout.length ? 'Edit Workout' : 'Log Workout'}</button>
               {workout.length > 0 && <button className="secondary-button" onClick={() => setScreen('workout')}>Resume workout</button>}
             </section>
@@ -732,7 +615,7 @@ const workout = weeklyWorkouts[selectedDay] || []
 
           <div className="category-grid">
 
-            {Object.keys(exerciseLibrary).map(
+            {Object.keys(availableLibrary).map(
               (category) => (
                 <button
                   key={category}
@@ -764,7 +647,7 @@ const workout = weeklyWorkouts[selectedDay] || []
             Available Exercises
           </h3>
 
-          {exerciseLibrary[selectedCategory].map(
+          {(availableLibrary[selectedCategory] || []).map(
             (exercise) => (
               <div
                 className="exercise"
@@ -811,7 +694,7 @@ const workout = weeklyWorkouts[selectedDay] || []
 
             <div
               className="builder-exercise"
-              key={exercise.name}
+              key={`${exercise.session || ""}-${exercise.name}`}
             >
 
               <div className="builder-title">
@@ -823,7 +706,7 @@ const workout = weeklyWorkouts[selectedDay] || []
                 <button
                   onClick={() =>
                     removeExercise(
-                      exercise.name
+                      exercise.name, exercise.session
                     )
                   }
                 >
@@ -832,7 +715,13 @@ const workout = weeklyWorkouts[selectedDay] || []
 
               </div>
 
-              {exercise.cardio || exercise.minutes !== undefined ? (
+              {exercise.session && <h4>{exercise.session}</h4>}
+              {exercise.notes && <p style={{ whiteSpace: 'pre-line' }}>{exercise.notes}</p>}
+              {exercise.prescription ? (
+                <label>Workout instructions
+                  <input value={exercise.prescription} onChange={event => updateExercise(exercise.name, 'prescription', event.target.value, exercise.session)} />
+                </label>
+              ) : exercise.cardio || exercise.minutes !== undefined ? (
                 <div className="exercise-inputs cardio-inputs">
                   <label>
                     Time (min)
@@ -933,7 +822,7 @@ const workout = weeklyWorkouts[selectedDay] || []
               )}
 
               <p className="calorie-estimate">
-                Estimated calories: {estimateCalories(exercise, profile.bodyWeight)}
+                {exercise.prescription ? 'Calories not estimated for this prescription' : `Estimated calories: ${estimateCalories(exercise, profile.bodyWeight)}`}
               </p>
 
             </div>
@@ -1023,13 +912,13 @@ const workout = weeklyWorkouts[selectedDay] || []
 
             const isDone =
               completed.includes(
-                exercise.name
+                `${exercise.session || ""}|${exercise.name}`
               )
 
             return (
               <div
                 className="active-workout-card"
-                key={exercise.name}
+                key={`${exercise.session || ""}-${exercise.name}`}
               >
 
                 <h3>
@@ -1038,7 +927,9 @@ const workout = weeklyWorkouts[selectedDay] || []
 
                 <a className="exercise-video-link" href={youtubeSearchUrl(exercise.name)} target="_blank" rel="noreferrer">Find a video on YouTube ↗</a>
 
-                {exercise.cardio || exercise.minutes !== undefined ? (
+                {exercise.session && <h4>{exercise.session}</h4>}
+                {exercise.notes && <p style={{ whiteSpace: 'pre-line' }}>{exercise.notes}</p>}
+                {exercise.prescription ? <p>{exercise.prescription}</p> : exercise.cardio || exercise.minutes !== undefined ? (
                   <p>
                     {exercise.time || exercise.minutes ? `${exercise.time || exercise.minutes} minutes` : 'Time not set'}
                     {exercise.speed && ` · ${exercise.speed} mph`}
@@ -1053,7 +944,7 @@ const workout = weeklyWorkouts[selectedDay] || []
                 )}
 
                 <p className="calorie-estimate">
-                  Estimated calories: {estimateCalories(exercise, profile.bodyWeight)}
+                  {exercise.prescription ? 'Calories not estimated for this prescription' : `Estimated calories: ${estimateCalories(exercise, profile.bodyWeight)}`}
                 </p>
 
                 <button
@@ -1064,7 +955,7 @@ const workout = weeklyWorkouts[selectedDay] || []
                   }
                   onClick={() =>
                     toggleComplete(
-                      exercise.name
+                      `${exercise.session || ""}|${exercise.name}`
                     )
                   }
                 >

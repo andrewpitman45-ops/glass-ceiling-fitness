@@ -94,6 +94,7 @@ h1, h2, h3, p { margin-top: 0; }
 .exercise-video-link, .video-link { color: var(--accent); text-decoration: none; font-size: 12px; font-weight: 650; }
 .exercise-video-link:hover, .video-link:hover { color: #c5fff4; text-decoration: underline; }
 .exercise button { min-width: 78px; color: var(--accent); }
+.paste-workout { width: 100%; min-height: 160px; resize: vertical; border: 1px solid #3a5061; border-radius: 9px; padding: 13px 14px; background: #091522; color: var(--text); margin-top: 12px; margin-bottom: 8px; }
 .empty-message { margin: 0; padding: 25px 0; color: var(--muted); font-size: 14px; }
 .builder-exercise, .active-workout-card { padding: 20px 0; border-bottom: 1px solid var(--line); }
 .builder-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; }

@@ -162,6 +162,131 @@ function youtubeSearchUrl(exerciseName) {
   return `https://www.youtube.com/results?search_query=${encodeURIComponent(`${exerciseName} proper form`)}`
 }
 
+function parseWorkoutNumber(value) {
+  if (!value) return null
+  const cleaned = String(value).replace(/[–—]/g, '-').replace(/[^0-9.-]/g, '')
+  if (!cleaned) return null
+  const parts = cleaned.split('-').map(part => Number(part)).filter(part => Number.isFinite(part))
+  if (!parts.length) return null
+  return parts.length === 1 ? parts[0] : parts.reduce((total, part) => total + part, 0) / parts.length
+}
+
+function normalizeExerciseName(name) {
+  return String(name || '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/\s+(?:-\s*)?$/g, '')
+}
+
+function parseCardioExercise(line) {
+  const cardioMatch = line.match(/^(.+?)\s+(\d+(?:\.\d+)?(?:\s*-\s*\d+(?:\.\d+)?)?)\s*minutes?(?:\s+at\s+(.+))?$/i)
+  if (!cardioMatch) return null
+
+  const name = normalizeExerciseName(cardioMatch[1])
+  const minutes = parseWorkoutNumber(cardioMatch[2])
+  if (!name || !Number.isFinite(minutes)) return null
+
+  const detailText = (cardioMatch[3] || '').trim()
+  const speed = detailText.match(/(\d+(?:\.\d+)?)\s*mph/i)?.[1] || ''
+  const incline = detailText.match(/incline\s+(\d+(?:\.\d+)?)/i)?.[1] || ''
+  const distance = detailText.match(/(\d+(?:\.\d+)?)\s*mi/i)?.[1] || ''
+
+  return {
+    name,
+    cardio: true,
+    time: String(Math.round(minutes)),
+    speed: speed || '',
+    distance: distance || '',
+    incline: incline || '',
+    sets: '',
+    reps: '',
+    weight: '',
+  }
+}
+
+function parseStrengthExercise(line) {
+  const match = line.match(/^(.+?)\s+(\d+)\s*[x×]\s*(\d+(?:\.\d+)?(?:\s*-\s*\d+(?:\.\d+)?)?)\s*(?:at\s+(.+))?$/i)
+  if (!match) return null
+
+  const name = normalizeExerciseName(match[1])
+  const sets = Number(match[2])
+  const repsRaw = match[3]
+  const reps = parseWorkoutNumber(repsRaw)
+  if (!name || !Number.isFinite(sets) || !Number.isFinite(reps) || sets <= 0) return null
+
+  const details = (match[4] || '').trim()
+  const weightMatch = details.match(/(\d+(?:\.\d+)?)\s*(?:-|\s*to\s*|\s*–\s*)?\s*(\d+(?:\.\d+)?)?\s*(?:lb|lbs|kg)/i)
+  const weightValue = weightMatch ? String((Number(weightMatch[1]) + Number(weightMatch[2] || weightMatch[1])) / 2) : ''
+
+  return {
+    name,
+    cardio: false,
+    sets: String(Math.round(sets)),
+    reps: String(Math.round(reps)),
+    weight: weightValue,
+    time: undefined,
+    distance: undefined,
+    speed: undefined,
+    incline: undefined,
+  }
+}
+
+function parseWorkoutPlanText(text, defaultDay = 'monday') {
+  const byDay = {
+    monday: [],
+    tuesday: [],
+    wednesday: [],
+    thursday: [],
+    friday: [],
+    saturday: [],
+    sunday: [],
+    extra: [],
+  }
+
+  if (!text || !text.trim()) {
+    return { [defaultDay]: [] }
+  }
+
+  let currentDay = null
+  const lines = text
+    .replace(/\r/g, '')
+    .split('\n')
+    .map(line => line.replace(/^[-•*]\s*/, '').trim())
+    .filter(Boolean)
+
+  for (const line of lines) {
+    const dayMatch = line.match(/^(monday|tuesday|wednesday|thursday|friday|saturday|sunday|extra)\b/i)
+    if (dayMatch) {
+      currentDay = dayMatch[1].toLowerCase()
+      if (!byDay[currentDay]) {
+        byDay[currentDay] = []
+      }
+      continue
+    }
+
+    if (/before work|after work|morning|evening|warm[- ]?up|cool[- ]?down|rest|focus on|mobility|intervals|rounds|minutes?\s*\/|easy stretching|light jog|steady run|relaxed walk|walk\s+\d|run\s+\d/i.test(line)) {
+      continue
+    }
+
+    const parsedExercise = parseCardioExercise(line) || parseStrengthExercise(line)
+    if (!parsedExercise) continue
+
+    if (!currentDay) {
+      currentDay = defaultDay
+    }
+
+    byDay[currentDay] = byDay[currentDay] || []
+    byDay[currentDay].push(parsedExercise)
+  }
+
+  const dayEntries = Object.entries(byDay).filter(([, exercises]) => exercises.length > 0)
+  if (!dayEntries.length) {
+    return { [defaultDay]: [] }
+  }
+
+  return Object.fromEntries(dayEntries)
+}
+
 function weekStart(dateString) {
   const [year, month, day] = dateString.split('-').map(Number)
   const date = new Date(year, month - 1, day)
@@ -193,6 +318,7 @@ function App({ initialProfile, onSignOut }) {
   const [screen, setScreen] = useState('home')
   const [selectedDay, setSelectedDay] = useState('monday')
   const [selectedCategory, setSelectedCategory] = useState('Cardio')
+  const [pastedWorkout, setPastedWorkout] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
   const [profile, setProfile] = useState(() => normalizeRewards(initialProfile))
   const [storageError, setStorageError] = useState('')
@@ -247,6 +373,32 @@ const workout = weeklyWorkouts[selectedDay] || []
 
   function setCompleted(next) {
     updateProfile({ completed: next })
+  }
+
+  function importWorkoutPlan() {
+    const parsedPlan = parseWorkoutPlanText(pastedWorkout, selectedDay)
+    const daysWithExercises = Object.entries(parsedPlan).filter(([, exercises]) => exercises.length > 0)
+
+    if (!daysWithExercises.length) {
+      setStorageError('Paste a workout with exercises like "Push-ups 3×15" or "Treadmill 30 minutes at 3.8 mph".')
+      return
+    }
+
+    const nextWeeklyWorkouts = { ...weeklyWorkouts }
+    for (const [day, exercises] of daysWithExercises) {
+      const safeDay = day in nextWeeklyWorkouts ? day : selectedDay
+      const existing = nextWeeklyWorkouts[safeDay] || []
+      const nextExercises = exercises.filter(exercise => !existing.some(item => item.name === exercise.name))
+      nextWeeklyWorkouts[safeDay] = [...existing, ...nextExercises]
+    }
+
+    updateProfile({
+      weeklyWorkouts: nextWeeklyWorkouts,
+      completed: completed.filter(name => (nextWeeklyWorkouts[selectedDay] || []).some(item => item.name === name)),
+    })
+
+    setPastedWorkout('')
+    setScreen('home')
   }
 
   function saveDetails(details) {
@@ -555,6 +707,18 @@ const workout = weeklyWorkouts[selectedDay] || []
         </section>
 
         {daySelector}
+
+        <section className="workout-card">
+          <p className="small-text">Paste a workout plan</p>
+          <h3>Add exercises from text</h3>
+          <textarea
+            className="paste-workout"
+            value={pastedWorkout}
+            onChange={event => setPastedWorkout(event.target.value)}
+            placeholder={'Example:\nMonday — Push + intervals\nDumbbell bench press 4×8 at 35 lb each\nTreadmill 30 minutes at 3.8 mph, incline 8'}
+          />
+          <button className="main-button" type="button" onClick={importWorkoutPlan}>Add pasted workout</button>
+        </section>
 
         <section className="goal-card">
 

@@ -4,7 +4,7 @@ import Brand from './Brand'
 import { ProfileForm } from './Profiles'
 import { supabase } from './supabase'
 
-const WORKOUT_RESET_VERSION = 1
+const WORKOUT_RESET_VERSION = 2
 const EMPTY_WEEKLY_WORKOUTS = {
   monday: [],
   tuesday: [],
@@ -19,24 +19,10 @@ const EMPTY_WEEKLY_WORKOUTS = {
 function resetWorkoutData(profile) {
   return {
     ...profile,
-    weeklyWorkouts: {
-      monday: [],
-      tuesday: [],
-      wednesday: [],
-      thursday: [],
-      friday: [],
-      saturday: [],
-      sunday: [],
-      extra: [],
-    },
+    weeklyWorkouts: { ...EMPTY_WEEKLY_WORKOUTS },
     workoutHistory: [],
     caloriesBurned: [],
     completed: [],
-    monthlyWorkoutDates: [],
-    completedWeeks: [],
-    rewardPoints: 0,
-    sessions: 0,
-    rewardMonth: new Date().toISOString().slice(0, 7),
     workoutResetVersion: WORKOUT_RESET_VERSION,
   }
 }

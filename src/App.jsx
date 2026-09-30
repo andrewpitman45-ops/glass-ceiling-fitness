@@ -1,4 +1,5 @@
 import Friends from './Friends'
+import HomePhotos from './HomePhotos'
 import { useRef, useState } from 'react'
 import './App.css'
 import Brand from './Brand'
@@ -528,6 +529,7 @@ const workout = weeklyWorkouts[selectedDay] || []
           </section>
         ) : (
           <>
+            <HomePhotos key={profile.id} userId={profile.id} onManageFriends={() => setScreen('friends')} />
             {daySelector}
             <div className="stats-grid">
               <section className="stat-card"><p>Workouts this month</p><h3>{monthlyWorkoutCount}</h3></section>

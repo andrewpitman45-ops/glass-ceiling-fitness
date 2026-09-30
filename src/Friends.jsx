@@ -1,25 +1,9 @@
 ﻿import { useEffect, useRef, useState } from 'react'
 import { supabase } from './supabase'
+import FriendPhoto from './FriendPhoto'
 
 const bucket = 'friend-photos'
 const types = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' }
-
-function Photo({ post }) {
-  const [url, setUrl] = useState('')
-  const [failed, setFailed] = useState(false)
-  useEffect(() => {
-    let active = true
-    let objectUrl
-    supabase.storage.from(bucket).download(post.object_path).then(({ data, error }) => {
-      if (!active) return
-      if (error) { setFailed(true); return }
-      objectUrl = URL.createObjectURL(data)
-      setUrl(objectUrl)
-    }).catch(() => { if (active) setFailed(true) })
-    return () => { active = false; if (objectUrl) URL.revokeObjectURL(objectUrl) }
-  }, [post.object_path])
-  return url ? <img className="friend-photo" src={url} alt={post.caption || 'Photo shared with a friend'} /> : <p>{failed ? 'Photo unavailable. Refresh to retry.' : 'Loading photo...'}</p>
-}
 
 export default function Friends({ userId }) {
   const [links, setLinks] = useState([])
@@ -155,7 +139,7 @@ export default function Friends({ userId }) {
       {!posts.length && <p>No shared photos yet.</p>}
       <div className="friend-photo-grid">{posts.map(post => <article className="friend-post" key={post.id}>
         <p>{post.author === userId ? 'To' : 'From'} <code>{post.author === userId ? post.recipient : post.author}</code></p>
-        <Photo post={post} />
+        <FriendPhoto post={post} />
         {post.caption && <p>{post.caption}</p>}
         <time dateTime={post.created_at}>{new Date(post.created_at).toLocaleString()}</time>
         <button className="secondary-button" disabled={busy} onClick={() => removePost(post)}>Remove post</button>

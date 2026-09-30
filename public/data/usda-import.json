@@ -1,0 +1,10 @@
+{
+  "source": "FoodData_Central_csv_2026-04-30",
+  "includedTypes": [
+    "foundation_food",
+    "sr_legacy_food",
+    "survey_fndds_food"
+  ],
+  "imported": 13591,
+  "skippedMissingMacros": 103
+}

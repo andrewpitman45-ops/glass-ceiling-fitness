@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { localFoods } from './dunkinFoods'
+import { loadUsdaFoods, searchFoods } from './foodSearch'
 
 function today() {
   return new Date().toISOString().slice(0, 10)
@@ -9,14 +10,10 @@ function numberOrZero(value) {
   return Number.isFinite(Number(value)) ? Number(value) : 0
 }
 
-function normalizeSearch(value) {
-  return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
-}
-
 function nutritionPer100g(product) {
   const nutrients = product.nutriments || {}
   return {
-    calories: numberOrZero(nutrients['energy-kcal_100g'] || nutrients['energy-kcal_value']),
+    calories: numberOrZero(nutrients['energy-kcal_100g'] ?? (nutrients.energy_100g / 4.184)),
     protein: numberOrZero(nutrients.proteins_100g),
     carbs: numberOrZero(nutrients.carbohydrates_100g),
     fat: numberOrZero(nutrients.fat_100g),
@@ -53,25 +50,25 @@ export default function Nutrition({ profile, onSave }) {
       return undefined
     }
 
-    const normalizedTerm = normalizeSearch(searchTerm)
-    const searchWords = normalizedTerm.split(' ')
-    const localResults = localFoods
-      .map(product => {
-        const name = normalizeSearch(product.product_name)
-        const brand = normalizeSearch(product.brands || '')
-        const score = searchWords.reduce((total, word) => total + (name.includes(word) || brand.includes(word) ? 1 : 0), 0)
-          + (name.startsWith(normalizedTerm) ? 2 : 0)
-          + (brand === normalizedTerm ? 3 : 0)
-        return { product, score }
-      })
-      .filter(result => result.score >= searchWords.length)
-      .sort((a, b) => b.score - a.score || a.product.product_name.localeCompare(b.product.product_name))
-      .map(result => result.product)
-      .slice(0, 8)
+    let localResults = searchFoods(localFoods, searchTerm)
     const controller = new AbortController()
+    let active = true
+    let networkTimeout
     const timeout = setTimeout(async () => {
       setFoodResults(localResults)
       setFoodSearchStatus('Searching foods...')
+      let catalogUnavailable = false
+      try {
+        const usdaFoods = await loadUsdaFoods()
+        if (!active) return
+        localResults = searchFoods([...localFoods, ...usdaFoods], searchTerm)
+        setFoodResults(localResults)
+        setFoodSearchStatus(localResults.length ? '' : 'Searching packaged foods...')
+      } catch {
+        catalogUnavailable = true
+      }
+      if (!active) return
+      networkTimeout = setTimeout(() => controller.abort(), 8000)
       try {
         const params = new URLSearchParams({
           search_terms: searchTerm,
@@ -84,20 +81,25 @@ export default function Nutrition({ profile, onSave }) {
         const response = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?${params}`, { signal: controller.signal })
         if (!response.ok) throw new Error('Food search failed')
         const result = await response.json()
+        if (!active) return
         const products = (result.products || []).filter(product => product.product_name && product.nutriments)
         const localCodes = new Set(localResults.map(product => product.code))
         const mergedProducts = [...localResults, ...products.filter(product => !localCodes.has(product.code))]
         setFoodResults(mergedProducts)
         setFoodSearchStatus(mergedProducts.length ? '' : 'No matching foods found. You can enter the values manually.')
-      } catch (error) {
-        if (error.name !== 'AbortError') {
+      } catch {
+        if (active) {
           setFoodResults(localResults)
-          setFoodSearchStatus(localResults.length ? '' : 'Food lookup unavailable. Enter the values manually.')
+          setFoodSearchStatus(localResults.length ? '' : (catalogUnavailable ? 'Food catalogs unavailable. Retry your search or enter values manually.' : 'No local matches. Packaged-food lookup is unavailable; try another name or enter values manually.'))
         }
+      } finally {
+        clearTimeout(networkTimeout)
       }
-    }, 350)
+    }, 250)
 
     return () => {
+      active = false
+      clearTimeout(networkTimeout)
       clearTimeout(timeout)
       controller.abort()
     }
@@ -106,26 +108,21 @@ export default function Nutrition({ profile, onSave }) {
   function applyFood(product, grams = servingGrams) {
     const per100g = nutritionPer100g(product)
     const multiplier = Math.max(0, numberOrZero(grams)) / 100
-    setSelectedFood({ name: product.product_name, per100g })
+    setSelectedFood({ name: product.product_name, per100g, product })
     setFood(product.product_name)
     setCalories(String(Math.round(per100g.calories * multiplier)))
     setProtein(String(Math.round(per100g.protein * multiplier * 10) / 10))
     setCarbs(String(Math.round(per100g.carbs * multiplier * 10) / 10))
     setFat(String(Math.round(per100g.fat * multiplier * 10) / 10))
     setFoodResults([])
-    setFoodSearchStatus(product.code?.startsWith('starbucks-') || product.code?.startsWith('creamer-') || product.code?.startsWith('dunkin-')
-      ? 'Nutrition loaded from the local food catalog. Check the serving size before adding it.'
-      : 'Nutrition loaded from Open Food Facts. Check the serving size before adding it.')
+    const source = product.source || (localFoods.some(food => food.code === product.code) ? 'the local food catalog' : 'Open Food Facts')
+    setFoodSearchStatus(`Nutrition loaded from ${source}. Check the serving size before adding it.`)
+
   }
 
   function changeServingSize(value) {
     setServingGrams(value)
-    if (selectedFood) applyFood({ product_name: selectedFood.name, nutriments: {
-      'energy-kcal_100g': selectedFood.per100g.calories,
-      proteins_100g: selectedFood.per100g.protein,
-      carbohydrates_100g: selectedFood.per100g.carbs,
-      fat_100g: selectedFood.per100g.fat,
-    } }, value)
+    if (selectedFood) applyFood(selectedFood.product, value)
   }
 
   function saveNutrition(nextEntries = entries, nextPlan = plan) {
@@ -187,10 +184,10 @@ export default function Nutrition({ profile, onSave }) {
           <label>Date<input type="date" value={entryDate} onChange={event => setEntryDate(event.target.value)} required /></label>
           <label>Meal<select value={meal} onChange={event => setMeal(event.target.value)}><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option></select></label>
           <label className="food-search-label">Food item
-            <input value={food} onChange={event => { setFood(event.target.value); setSelectedFood(null); setFoodResults([]); setFoodSearchStatus('') }} placeholder="e.g. Greek yogurt" autoComplete="off" required />
+            <input value={food} onChange={event => { setFood(event.target.value); setSelectedFood(null); setFoodResults([]); setFoodSearchStatus('') }} placeholder="e.g. steak, chicken breast, Greek yogurt" autoComplete="off" required />
             {foodResults.length > 0 && <div className="food-results" role="listbox" aria-label="Food search results">
               {foodResults.map(product => <button type="button" key={product.code || product.product_name} role="option" onClick={() => { setServingGrams(String(product.serving_quantity || 100)); applyFood(product, product.serving_quantity || 100) }}>
-                <strong>{product.product_name}</strong><span>{product.brands || 'Open Food Facts'} · per 100g: {Math.round(nutritionPer100g(product).calories)} cal</span>
+                <strong>{product.product_name}</strong><span>{product.brands || product.source || 'Open Food Facts'} · per 100g: {Math.round(nutritionPer100g(product).calories)} cal</span>
               </button>)}
             </div>}
             {foodSearchStatus && <small className="food-search-status">{foodSearchStatus}</small>}

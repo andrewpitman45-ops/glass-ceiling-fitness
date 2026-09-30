@@ -24,9 +24,9 @@ export function searchFoods(products, query, limit = 12) {
 }
 
 export function decodeUsda(rows) {
-  return rows.map(([id, name, calories, protein, carbs, fat, dataType]) => ({
+  return rows.map(([id, name, calories, protein, carbs, fat, dataType, portions = []]) => ({
     code: `usda-${id}`, product_name: name, source: 'USDA FoodData Central', dataType,
-    serving_quantity: 100,
+    serving_quantity: 100, portions,
     nutriments: { 'energy-kcal_100g': calories, proteins_100g: protein, carbohydrates_100g: carbs, fat_100g: fat },
   }))
 }
@@ -41,4 +41,12 @@ export function loadUsdaFoods() {
       }).then(decodeUsda).catch(error => { catalogPromise = undefined; throw error })
   }
   return catalogPromise
+}
+
+export function servingOptions(product) {
+  if (product.portions?.length) return product.portions
+  const quantity = Number(product.serving_quantity)
+  const grams = Number.isFinite(quantity) && quantity > 0 ? quantity : 100
+  const local = /^(dunkin|starbucks|creamer)-/.test(product.code || '')
+  return [{ label: product.serving_size || (local ? '1 item / portion as named' : `${grams} g portion`), grams }]
 }

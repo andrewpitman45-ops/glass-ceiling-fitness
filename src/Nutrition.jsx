@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { localFoods } from './dunkinFoods'
-import { loadUsdaFoods, searchFoods } from './foodSearch'
+import { loadUsdaFoods, searchFoods, servingOptions } from './foodSearch'
 
 function today() {
   return new Date().toISOString().slice(0, 10)
@@ -30,7 +30,7 @@ export default function Nutrition({ profile, onSave }) {
   const [protein, setProtein] = useState('')
   const [carbs, setCarbs] = useState('')
   const [fat, setFat] = useState('')
-  const [servingGrams, setServingGrams] = useState('100')
+  const [servings, setServings] = useState('1')
   const [foodResults, setFoodResults] = useState([])
   const [foodSearchStatus, setFoodSearchStatus] = useState('')
   const [selectedFood, setSelectedFood] = useState(null)
@@ -76,7 +76,7 @@ export default function Nutrition({ profile, onSave }) {
           action: 'process',
           json: '1',
           page_size: '8',
-          fields: 'code,product_name,brands,nutriments,serving_quantity',
+          fields: 'code,product_name,brands,nutriments,serving_quantity,serving_size',
         })
         const response = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?${params}`, { signal: controller.signal })
         if (!response.ok) throw new Error('Food search failed')
@@ -105,10 +105,10 @@ export default function Nutrition({ profile, onSave }) {
     }
   }, [food, selectedFood])
 
-  function applyFood(product, grams = servingGrams) {
+  function applyFood(product, count = servings, portion = servingOptions(product)[0]) {
     const per100g = nutritionPer100g(product)
-    const multiplier = Math.max(0, numberOrZero(grams)) / 100
-    setSelectedFood({ name: product.product_name, per100g, product })
+    const multiplier = Math.max(0, numberOrZero(count)) * portion.grams / 100
+    setSelectedFood({ name: product.product_name, per100g, product, portion })
     setFood(product.product_name)
     setCalories(String(Math.round(per100g.calories * multiplier)))
     setProtein(String(Math.round(per100g.protein * multiplier * 10) / 10))
@@ -121,8 +121,8 @@ export default function Nutrition({ profile, onSave }) {
   }
 
   function changeServingSize(value) {
-    setServingGrams(value)
-    if (selectedFood) applyFood(selectedFood.product, value)
+    setServings(value)
+    if (selectedFood) applyFood(selectedFood.product, value, selectedFood.portion)
   }
 
   function saveNutrition(nextEntries = entries, nextPlan = plan) {
@@ -138,15 +138,15 @@ export default function Nutrition({ profile, onSave }) {
     const proteinValue = Number(protein) || 0
     const carbsValue = Number(carbs) || 0
     const fatValue = Number(fat) || 0
-    if (!food.trim() || !Number.isFinite(calorieValue) || calorieValue < 0 || proteinValue < 0 || carbsValue < 0 || fatValue < 0) return
-    const nextEntries = [...entries, { id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, date: entryDate, meal, food: food.trim(), calories: Math.round(calorieValue), protein: proteinValue, carbs: carbsValue, fat: fatValue }]
+    if (!Number.isFinite(Number(servings)) || Number(servings) <= 0 || !food.trim() || !Number.isFinite(calorieValue) || calorieValue < 0 || proteinValue < 0 || carbsValue < 0 || fatValue < 0) return
+    const nextEntries = [...entries, { id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, date: entryDate, meal, servings: Number(servings), servingLabel: selectedFood?.portion.label || null, food: food.trim(), calories: Math.round(calorieValue), protein: proteinValue, carbs: carbsValue, fat: fatValue }]
     saveNutrition(nextEntries)
     setFood('')
     setCalories('')
     setProtein('')
     setCarbs('')
     setFat('')
-    setServingGrams('100')
+    setServings('1')
     setSelectedFood(null)
     setFoodSearchStatus('')
   }
@@ -186,13 +186,16 @@ export default function Nutrition({ profile, onSave }) {
           <label className="food-search-label">Food item
             <input value={food} onChange={event => { setFood(event.target.value); setSelectedFood(null); setFoodResults([]); setFoodSearchStatus('') }} placeholder="e.g. steak, chicken breast, Greek yogurt" autoComplete="off" required />
             {foodResults.length > 0 && <div className="food-results" role="listbox" aria-label="Food search results">
-              {foodResults.map(product => <button type="button" key={product.code || product.product_name} role="option" onClick={() => { setServingGrams(String(product.serving_quantity || 100)); applyFood(product, product.serving_quantity || 100) }}>
+              {foodResults.map(product => <button type="button" key={product.code || product.product_name} role="option" onClick={() => { setServings('1'); applyFood(product, '1') }}>
                 <strong>{product.product_name}</strong><span>{product.brands || product.source || 'Open Food Facts'} · per 100g: {Math.round(nutritionPer100g(product).calories)} cal</span>
               </button>)}
             </div>}
             {foodSearchStatus && <small className="food-search-status">{foodSearchStatus}</small>}
           </label>
-          <label>Serving size (g)<input type="number" min="0" step="1" value={servingGrams} onChange={event => changeServingSize(event.target.value)} /></label>
+          <label>Servings<input type="number" min="0.01" step="any" value={servings} onChange={event => changeServingSize(event.target.value)} required /><small>{selectedFood ? 'Use 0.5 for half a serving or 2 for two servings.' : 'For manual foods, enter nutrition totals for the servings eaten.'}</small></label>
+          {selectedFood && <label>Serving size<select value={servingOptions(selectedFood.product).findIndex(portion => portion.label === selectedFood.portion.label && portion.grams === selectedFood.portion.grams)} onChange={event => applyFood(selectedFood.product, servings, servingOptions(selectedFood.product)[Number(event.target.value)])}>
+            {servingOptions(selectedFood.product).map((portion, index) => <option key={index} value={index}>{portion.label}</option>)}
+          </select></label>}
           <label>Calories<input type="number" min="0" step="1" value={calories} onChange={event => setCalories(event.target.value)} placeholder="e.g. 180" required /></label>
           <label>Protein (g)<input type="number" min="0" step="0.1" value={protein} onChange={event => setProtein(event.target.value)} placeholder="e.g. 17" /></label>
           <label>Carbs (g)<input type="number" min="0" step="0.1" value={carbs} onChange={event => setCarbs(event.target.value)} placeholder="e.g. 8" /></label>

@@ -44,3 +44,10 @@ npm run build
 The importer also writes `public/data/usda-import.json` with record counts.
 Update its release label when importing a different release. Deploy the resulting
 build through the normal site deployment process to make the catalog live.
+
+Serving entry now uses a serving count (including fractions) and a portion selector.
+USDA household portions are available for 13,037 foods. Foods without portion data
+show an explicitly labeled weight-based portion; no household size is guessed.
+To retain these options when refreshing the catalog, also extract `food_portion.csv`
+and `measure_unit.csv` into `.fdc-import/`, then run
+`node scripts/import-usda-portions.mjs .fdc-import` after the main importer and before building.

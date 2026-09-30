@@ -177,3 +177,38 @@ textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; 
 .account-actions { display: flex; gap: 10px; }
 button:disabled { cursor: wait; opacity: .6; }
 @media (max-width: 560px) { .nutrition-inputs label:last-child { grid-column: auto; } }
+.friends-panel { max-width: 900px; margin: 24px auto; }
+.friends-panel > input { width: 100%; box-sizing: border-box; }
+.friend-connection, .friend-post { border: 1px solid #8886; border-radius: 12px; padding: 16px; margin: 16px 0; }
+.friends-panel code { overflow-wrap: anywhere; }
+.friend-photo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px; }
+.friend-photo { width: 100%; max-height: 480px; object-fit: contain; border-radius: 8px; }
+.friend-post p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.friend-post time { display: block; font-size: .85rem; margin: 12px 0; }
+
+/* Rounded spaces and compact controls keep navigation out of the content. */
+.dashboard { background: radial-gradient(ellipse at 10% 10%, #18494a66, transparent 48%), radial-gradient(ellipse at 95% 65%, #23385166, transparent 52%), var(--bg); }
+.goal-card, .workout-card, .stat-card, .reward-card, .login-card { border-radius: 30px; border-color: #57778666; box-shadow: 0 14px 38px #0002, inset 0 1px #dbffff12; }
+.main-button, .secondary-button, .sign-out, .complete-button, .builder-title button, .exercise button { border-radius: 999px; }
+.profile-nav .gear-button { border-radius: 50%; }
+.settings-menu-panel { border-radius: 24px; padding: 10px; }
+.settings-menu-item { border-radius: 16px; }
+.profile-nav .settings-menu-item { width: 100%; max-width: none; }
+.bubble-control { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+.day-picker { max-width: 1040px; margin: 0 auto 24px; padding: 20px 24px; border: 1px solid #57778666; border-radius: 28px; background: #172b36; justify-content: space-between; }
+.day-picker label span { display: block; margin-top: 5px; color: var(--muted); font-size: 13px; }
+.bubble-control select { min-height: 48px; min-width: 180px; max-width: 100%; padding: 12px 36px 12px 18px; border-radius: 20px; border: 1px solid #56747f; color: var(--text); background: #0d202c; }
+.category-picker { margin-top: 20px; }
+.space-bubbles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; max-width: 1040px; margin: 24px auto; }
+.space-bubble { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; min-height: 180px; padding: 24px; border: 1px solid #608a8966; border-radius: 32px; text-align: left; color: var(--text); background: linear-gradient(135deg, #254543, #152b36); box-shadow: inset 0 1px #dfffff18, 0 10px 26px #0002; }
+.space-bubble:nth-child(2n) { background: linear-gradient(135deg, #293b53, #172b39); }
+.space-bubble:hover { border-color: var(--accent); box-shadow: 0 8px 30px #72e8cf16; }
+.space-bubble strong { font-size: 18px; }
+.space-bubble > span:last-child { font-size: 13px; color: #bdcfd8; line-height: 1.5; }
+.bubble-icon { display: grid; place-items: center; width: 44px; height: 44px; background: #a5f6e518; border-radius: 50%; color: #b5f9ea; font-size: 26px; }
+.builder-exercise, .active-workout-card, .info-group, .friend-connection, .friend-post { border: 1px solid #49677666; border-radius: 24px; padding: 20px; margin-top: 16px; background: #0c1c2866; }
+.nutrition-summary > div, .macro-chart, .weight-chart-wrap { border-radius: 24px; }
+.profile-form input, .profile-form select, .profile-form textarea, .exercise-inputs input, .nutrition-inputs input, .nutrition-inputs select, .paste-workout { border-radius: 18px; }
+.friend-photo { border-radius: 20px; }
+@media (max-width: 760px) { .space-bubbles { grid-template-columns: repeat(2, minmax(0, 1fr)); } .space-bubble { padding: 20px; min-height: 170px; } }
+@media (max-width: 420px) { .space-bubbles { grid-template-columns: 1fr; } .space-bubble { min-height: 150px; } .day-picker { padding: 18px; } .day-picker select, .category-picker select { width: 100%; min-width: 0; } .builder-exercise, .active-workout-card { padding: 14px; } .exercise-inputs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

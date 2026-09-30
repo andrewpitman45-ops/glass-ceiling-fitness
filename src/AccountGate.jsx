@@ -1,3 +1,4 @@
+﻿import { cleanWorkoutProfile } from './workoutPlan'
 import { useEffect, useState } from 'react'
 import App from './App'
 import Brand from './Brand'
@@ -275,9 +276,9 @@ function Member({ user, onSignOut }) {
         if (data) {
           const saved = data.data
           const needsWorkoutReset = saved.workoutResetVersion !== WORKOUT_RESET_VERSION
-          const nextProfile = needsWorkoutReset ? resetWorkoutData(saved) : saved
+          const nextProfile = cleanWorkoutProfile(needsWorkoutReset ? resetWorkoutData(saved) : saved)
 
-          if (needsWorkoutReset) {
+          if (needsWorkoutReset || JSON.stringify(nextProfile) !== JSON.stringify(saved)) {
             const { error: resetError } = await supabase
               .from('member_profiles')
               .update({ data: nextProfile })
@@ -285,7 +286,7 @@ function Member({ user, onSignOut }) {
 
             if (resetError) {
               setError(
-                'Unable to reset your workout data. Please retry.'
+                'Unable to update your workout data. Please retry.'
               )
               setLoading(false)
               return

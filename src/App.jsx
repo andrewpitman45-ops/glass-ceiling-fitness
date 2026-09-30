@@ -1,7 +1,8 @@
+﻿import Friends from './Friends'
 import { useRef, useState } from 'react'
 import './App.css'
 import Brand from './Brand'
-import { parseWorkoutPlanText, mergeWorkoutPlan } from './workoutPlan'
+import { parseWorkoutPlanText, mergeWorkoutPlan, cleanWorkoutProfile } from './workoutPlan'
 import CaloriesBurned from './CaloriesBurned'
 import Nutrition from './Nutrition'
 import WeightTracker from './WeightTracker'
@@ -172,6 +173,7 @@ function weekStart(dateString) {
 }
 
 function normalizeRewards(profile) {
+  profile = cleanWorkoutProfile(profile)
   if (profile.rewardMonth === currentMonth()) {
     return {
       ...profile,
@@ -219,7 +221,7 @@ const workout = weeklyWorkouts[selectedDay] || []
   const availableLibrary = { ...exerciseLibrary, ...(personalExercises.length ? { 'My imported exercises': [...new Set(personalExercises.map(item => item.name))] } : {}) }
 
   function updateProfile(changes) {
-    const next = { ...latestProfile.current, ...changes }
+    const next = cleanWorkoutProfile({ ...latestProfile.current, ...changes })
     latestProfile.current = next
     setProfile(next)
     setSaving(true)
@@ -407,29 +409,16 @@ const workout = weeklyWorkouts[selectedDay] || []
 
 
   const daySelector = (
-    <div className="day-selector">
-      {[
-        'monday',
-        'tuesday',
-        'wednesday',
-        'thursday',
-        'friday',
-        'saturday',
-        'sunday',
-        'extra',
-      ].map((day) => (
-        <button
-          key={day}
-          type="button"
-          className={selectedDay === day ? 'main-button' : 'secondary-button'}
-          onClick={() => {
-            setSelectedDay(day)
-            setCompleted([])
-          }}
-        >
-          {day.charAt(0).toUpperCase() + day.slice(1)}
-        </button>
-      ))}
+    <div className="day-picker bubble-control">
+      <label htmlFor="workout-day"><strong>Your workout day</strong><span>Choose the day you want to work on.</span></label>
+      <select id="workout-day" value={selectedDay} onChange={event => {
+        setSelectedDay(event.target.value)
+        setCompleted([])
+      }}>
+        {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', 'extra'].map(day =>
+          <option key={day} value={day}>{day.charAt(0).toUpperCase() + day.slice(1)}</option>
+        )}
+      </select>
     </div>
   )
 
@@ -445,6 +434,7 @@ const workout = weeklyWorkouts[selectedDay] || []
             <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('nutrition') }}>Nutrition</button>
             <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('calories') }}>Calories burned</button>
             <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('info') }}>Workout info</button>
+            <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('friends') }}>Friends &amp; photos</button>
             <button className="settings-menu-item" disabled={saving} onClick={signOut}>Sign out</button>
           </div>
         )}
@@ -454,6 +444,14 @@ const workout = weeklyWorkouts[selectedDay] || []
   const notice = <>{saving && <p className="welcome" role="status">Saving changes...</p>}{storageError && <div className="storage-error" role="alert">{storageError} <button className="secondary-button" disabled={saving} onClick={() => updateProfile({})}>Retry save</button></div>}</>
 
   const supportedClient = profile.clientType === 'youre-with-us'
+
+  if (screen === 'friends') {
+    return <main className="dashboard">
+      <header className="top-bar"><Brand />{navigation}</header>
+      <Friends userId={profile.id} />
+      <div className="welcome"><button className="secondary-button" onClick={() => setScreen('home')}>Back to my dashboard</button></div>
+    </main>
+  }
 
   if (screen === 'nutrition') {
     return <main className="dashboard">
@@ -538,15 +536,24 @@ const workout = weeklyWorkouts[selectedDay] || []
               {workout[0]?.dayTitle && <h3>{workout[0].dayTitle}</h3>}
               {workout.map((item, index) => <div key={index}>
                 {item.session && item.session !== workout[index - 1]?.session && <h4>{item.session}</h4>}
-                <p><strong>{item.name}</strong>{item.prescription && ' ? ' + item.prescription}</p>
+                <p><strong>{item.name}</strong>{item.prescription && ' — ' + item.prescription}</p>
                 {item.notes && <p style={{ whiteSpace: 'pre-line' }}>{item.notes}</p>}
               </div>)}
               <button className="main-button" onClick={() => setScreen('builder')}>{workout.length ? 'Edit Workout' : 'Log Workout'}</button>
               {workout.length > 0 && <button className="secondary-button" onClick={() => setScreen('workout')}>Resume workout</button>}
             </section>
-            <section className="workout-card">
-              <button className="main-button" onClick={() => setScreen('nutrition')}>{profile.nutrition || profile.nutritionEntries?.length ? 'View Food Log' : 'Log Food'}</button>
-            </section>
+            <nav className="space-bubbles" aria-label="Your fitness spaces">
+              {[
+                ['nutrition', 'Nutrition', 'Meals, food logs & your plan', '?'],
+                ['weight', 'Weight tracker', 'Follow your progress', '?'],
+                ['calories', 'Activity', 'Track calories burned', '?'],
+                ['friends', 'Friends & photos', 'Connect and share a moment', '?'],
+                ['info', 'Exercise guide', 'Find movement demonstrations', '?'],
+              ].map(([destination, title, description, icon]) => <button className="space-bubble" key={destination} onClick={() => setScreen(destination)}>
+                <span className="bubble-icon" aria-hidden="true">{icon}</span>
+                <strong>{title}</strong><span>{description}</span>
+              </button>)}
+            </nav>
             <section className="reward-card">
               <div className="reward-copy">
                 <p className="small-text">Monthly consistency reward</p>
@@ -613,26 +620,11 @@ const workout = weeklyWorkouts[selectedDay] || []
             Choose a Category
           </h3>
 
-          <div className="category-grid">
-
-            {Object.keys(availableLibrary).map(
-              (category) => (
-                <button
-                  key={category}
-                  className={
-                    selectedCategory === category
-                      ? 'category-button active-category'
-                      : 'category-button'
-                  }
-                  onClick={() =>
-                    setSelectedCategory(category)
-                  }
-                >
-                  {category}
-                </button>
-              )
-            )}
-
+          <div className="bubble-control category-picker">
+            <label htmlFor="exercise-category">Exercise group</label>
+            <select id="exercise-category" value={selectedCategory} onChange={event => setSelectedCategory(event.target.value)}>
+              {Object.keys(availableLibrary).map(category => <option key={category}>{category}</option>)}
+            </select>
           </div>
 
         </section>
@@ -990,3 +982,4 @@ const workout = weeklyWorkouts[selectedDay] || []
 }
 
 export default App
+

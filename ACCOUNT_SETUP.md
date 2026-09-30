@@ -25,3 +25,11 @@ Previously saved profiles are not proof of identity and are not automatically as
 Account sessions persist until sign-out; sign out on shared devices. Client pathway selection is a preference, not a staff role or verified organization membership. No trainer access is granted by this implementation.
 
 References: https://supabase.com/docs/guides/auth/passwords and https://supabase.com/docs/guides/database/postgres/row-level-security
+
+## Friends and private photo posts
+
+After the base account schema, run `supabase/migrations/20260930_friends_and_photos.sql` once in the Supabase SQL editor. It creates friend requests, photo metadata, a private 5 MB image bucket, and row-level security. Deploy the updated frontend after applying the migration.
+
+Open **Friends & photos** in the profile menu. Exchange friend codes (account IDs), send and accept a request, choose a friend, and upload a JPEG, PNG, or WebP. Only the sender and selected accepted friend can retrieve a post. No email address, workout, nutrition, or profile record is exposed. Either participant can remove a post; only the uploader can delete its stored file. Removing a received post hides it for both participants but leaves the private file in the uploader's storage. Unfriending removes recipient access to past posts; re-friending restores access. Downloaded copies cannot be recalled.
+
+Verify with three test accounts after applying SQL: pending requests cannot send photos; only the recipient can accept; requester/recipient IDs cannot be changed; accepted A/B can share while C and anonymous users cannot read posts or files; unfriend blocks B from retrieving A's photos. Check oversize/unsupported uploads, failed uploads, refresh persistence, and post removal. Storage orphan cleanup may be needed if an upload is interrupted or file removal fails. The frontend shows the latest 50 accessible posts and refreshes on actions or with the Refresh button.

@@ -4,20 +4,7 @@ import { resolve } from 'node:path'
 import { createInterface } from 'node:readline'
 
 // USDA CSV quotes embedded commas, quotes and occasionally line breaks.
-export function parseRow(line) {
-  const fields = []; let value = ''; let quoted = false
-  for (let i = 0; i < line.length; i++) {
-    const c = line[i]
-    if (c === '"') {
-      if (quoted && line[i + 1] === '"') { value += '"'; i++ }
-      else quoted = !quoted
-    } else if (c === ',' && !quoted) { fields.push(value); value = '' }
-    else value += c
-  }
-  if (quoted) return null
-  fields.push(value)
-  return fields
-}
+import { parseRow } from './csv.mjs'
 async function* rows(path) {
   const lines = createInterface({ input: createReadStream(path), crlfDelay: Infinity })
   let pending = ''; let header = true

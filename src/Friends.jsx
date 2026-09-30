@@ -1,6 +1,7 @@
 ﻿import { useEffect, useRef, useState } from 'react'
 import { supabase } from './supabase'
 import FriendPhoto from './FriendPhoto'
+import { friendError, sendFriendRequest } from './friendRequests'
 
 const bucket = 'friend-photos'
 const types = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' }
@@ -25,7 +26,7 @@ export default function Friends({ userId }) {
       supabase.from('friendships').select('*').order('created_at', { ascending: false }),
       supabase.from('friend_posts').select('*').order('created_at', { ascending: false }).limit(50),
     ])
-    if (relationships.error || photos.error) throw new Error('Could not load friends and photos. If this is the first setup, apply the friends-and-photos SQL migration.')
+    if (relationships.error || photos.error) throw new Error(friendError(relationships.error || photos.error))
     setLinks(relationships.data)
     setPosts(photos.data)
   }
@@ -37,7 +38,7 @@ export default function Friends({ userId }) {
       supabase.from('friend_posts').select('*').order('created_at', { ascending: false }).limit(50),
     ]).then(([relationships, photos]) => {
       if (!active) return
-      if (relationships.error || photos.error) throw new Error('Could not load friends and photos. Apply the friends-and-photos SQL migration if needed, then retry.')
+      if (relationships.error || photos.error) throw new Error(friendError(relationships.error || photos.error))
       setLinks(relationships.data); setPosts(photos.data)
     }).catch(err => { if (active) setError(err.message) }).finally(() => { if (active) setLoading(false) })
     return () => { active = false }
@@ -53,11 +54,8 @@ export default function Friends({ userId }) {
   function request(event) {
     event.preventDefault()
     act(async () => {
-      const target = code.trim().toLowerCase()
-      if (!/^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/.test(target) || target === userId) throw new Error('Enter another account’s valid friend code.')
-      const { error } = await supabase.from('friendships').insert({ requester: userId, recipient: target })
-      if (error) throw new Error('Could not send request. Check the code and whether a request or friendship already exists.')
-      setCode(''); setMessage('Friend request sent.')
+      const result = await sendFriendRequest(supabase, userId, code)
+      setCode(''); setMessage(result)
     })
   }
 
@@ -111,7 +109,7 @@ export default function Friends({ userId }) {
     </form>
     {error && <p className="form-error" role="alert">{error}</p>}
     {message && <p role="status">{message}</p>}
-    <button className="secondary-button" disabled={busy} onClick={() => act(async () => {})}>Refresh friends &amp; photos</button>
+    <button className="secondary-button" disabled={busy || loading} onClick={() => act(async () => { setMessage('Friends and photos refreshed.') })}>{busy ? 'Please wait...' : 'Refresh friends & photos'}</button>
     {loading ? <p role="status">Loading friends...</p> : <>
       <h3>Your connections</h3>
       {!links.length && <p>No friends yet. Share your code to get started.</p>}

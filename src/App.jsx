@@ -1,4 +1,4 @@
-﻿import Friends from './Friends'
+import Friends from './Friends'
 import { useRef, useState } from 'react'
 import './App.css'
 import Brand from './Brand'
@@ -194,7 +194,9 @@ function normalizeRewards(profile) {
 
 function App({ initialProfile, onSignOut }) {
   const [screen, setScreen] = useState('home')
-  const [selectedDay, setSelectedDay] = useState('monday')
+  const [selectedDay, setSelectedDay] = useState(() =>
+    ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][new Date().getDay()]
+  )
   const [selectedCategory, setSelectedCategory] = useState('Cardio')
   const [pastedWorkout, setPastedWorkout] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)

@@ -25,14 +25,14 @@ export function ProfileForm({ profile, onSave, onCancel }) {
 
   return (
     <form onSubmit={submit} className="profile-form">
-      <label htmlFor="profile-name">Your name</label>
+      <label htmlFor="profile-name">Name</label>
       <input id="profile-name" autoComplete="given-name" maxLength={40} required value={name} onChange={event => setName(event.target.value)} />
       <fieldset className="client-options">
         <legend>How are you joining us?</legend>
         <label><input type="radio" name="client-type" value="independent" checked={clientType === 'independent'} onChange={event => setClientType(event.target.value)} /><span>I'm joining independently<small>Fitness and nutrition planning around my goals.</small></span></label>
-        <label><input type="radio" name="client-type" value="youre-with-us" checked={clientType === 'youre-with-us'} onChange={event => setClientType(event.target.value)} /><span>I'm joining through You're With Us<small>Personalized fitness for people with disabilities, with support shaped around me.</small></span></label>
+        <label><input type="radio" name="client-type" value="youre-with-us" checked={clientType === 'youre-with-us'} onChange={event => setClientType(event.target.value)} /><span>I'm joining through You're With Us<small>Accessible fitness and support.</small></span></label>
       </fieldset>
-      <p className="small-text">Tell us how you're joining. Your preferences, accessibility needs, and choices matter in either option.</p>
+      <p className="small-text">Your pathway can be changed later in Profile.</p>
       <label htmlFor="profile-goal">Fitness goal</label>
       <select id="profile-goal" value={goal} onChange={event => setGoal(event.target.value)}>
         {goals.map(item => <option key={item}>{item}</option>)}
@@ -51,19 +51,15 @@ export default function Profiles({ profiles, onSelect, onCreate }) {
   const [creating, setCreating] = useState(false)
   return (
     <main className="app-shell">
-      <div className="entry-brand"><Brand /><span className="brand-caption">FITNESS THAT FITS YOU</span></div>
+      <div className="entry-brand"><Brand /></div>
       <section className="entry-hero" aria-labelledby="hero-title">
-        <p className="hero-kicker"><span /> YOU COME FIRST.</p>
-        <h1 id="hero-title">Your goals.<br /><em>Your way.</em></h1>
-        <p className="hero-copy">Personalized fitness for people with disabilities. Your plan starts with you: your goals, preferences, accessibility needs, and everyday life. Choose how you move and progress at your own pace.</p>
-        <p className="trainer-credentials">Licensed &amp; insured NASM personal trainer</p>
-        <div className="hero-rule" />
-        <div className="hero-pillars"><span><b>01</b> Customized fitness</span><span><b>02</b> Nutrition planning</span><span><b>03</b> Individual support</span></div>
+        <p className="hero-kicker"><span /> GLASS CEILING FITNESS</p>
+        <h1 id="hero-title">Fitness<br /><em>Dashboard</em></h1>
+        <p className="hero-copy">Workouts, food logs, and progress in one place.</p>
       </section>
       <section className="login-card">
-        <p className="card-kicker">YOUR PERSONAL TRAINING SPACE</p>
-        <h2>{creating || profiles.length === 0 ? 'Create your profile' : 'Welcome back'}</h2>
-        <p className="profile-intro">{creating || profiles.length === 0 ? "Join independently or through You're With Us. Start with what matters to you." : 'Choose your profile to return to your fitness and nutrition plans.'}</p>
+        <p className="card-kicker">ACCOUNT</p>
+        <h2>{creating || profiles.length === 0 ? 'Create profile' : 'Select profile'}</h2>
         {creating || profiles.length === 0 ? (
           <ProfileForm onSave={onCreate} onCancel={profiles.length ? () => setCreating(false) : undefined} />
         ) : (
@@ -82,7 +78,7 @@ export default function Profiles({ profiles, onSelect, onCreate }) {
         )}
         <p className="demo-note">Profiles are saved on this browser. Anyone using this device can open them.</p>
       </section>
-      <footer className="entry-footer"><span>GLASS CEILING FITNESS</span><span>Your goals. Your choices. Your pace.</span></footer>
+      <footer className="entry-footer"><span>GLASS CEILING FITNESS</span></footer>
     </main>
   )
 }

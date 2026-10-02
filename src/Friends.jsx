@@ -4,11 +4,27 @@ import FriendPhoto from './FriendPhoto'
 import { friendError, sendFriendRequest } from './friendRequests'
 
 const bucket = 'friend-photos'
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024
+const ACTION_COOLDOWN_MS = 2000
 
 const types = {
   'image/jpeg': 'jpg',
   'image/png': 'png',
   'image/webp': 'webp',
+}
+
+function hasControlCharacters(value) {
+  return [...value].some(character => {
+    const code = character.codePointAt(0)
+    return code < 32 || (code >= 127 && code <= 159)
+  })
+}
+
+function allowAction(lastActionAt, action, intervalMs) {
+  const now = Date.now()
+  if (now - (lastActionAt.current[action] || 0) < intervalMs) return false
+  lastActionAt.current[action] = now
+  return true
 }
 
 export default function Friends({ userId }) {
@@ -26,6 +42,10 @@ export default function Friends({ userId }) {
   const [message, setMessage] = useState('')
 
   const input = useRef(null)
+  const actionRunning = useRef(false)
+  const lastActionAt = useRef({})
+  const searchRunning = useRef(false)
+  const searchTimes = useRef([])
 
   const other = link =>
     link.requester === userId
@@ -217,6 +237,8 @@ export default function Friends({ userId }) {
   }, [userId])
 
   async function act(action) {
+    if (actionRunning.current) return
+    actionRunning.current = true
     setBusy(true)
     setError('')
     setMessage('')
@@ -230,6 +252,7 @@ export default function Friends({ userId }) {
           'Something went wrong. Please retry.'
       )
     } finally {
+      actionRunning.current = false
       setBusy(false)
       setLoading(false)
     }
@@ -237,6 +260,7 @@ export default function Friends({ userId }) {
 
   async function searchMembers(event) {
     event.preventDefault()
+    if (busy || actionRunning.current || searchRunning.current) return
 
     setError('')
     setMessage('')
@@ -246,20 +270,38 @@ export default function Friends({ userId }) {
       .trim()
       .replace(/\s+/g, ' ')
 
+    if (cleaned.length > 80 || hasControlCharacters(cleaned)) {
+      setError('Enter a name up to 80 characters long.')
+      return
+    }
+
     const parts = cleaned.split(' ')
 
-    if (parts.length < 2) {
+    if (parts.length < 2 || parts.some(part => part.length < 2)) {
       setError(
-        'Enter both a first and last name.'
+        'Enter a first and last name, with at least 2 characters each.'
       )
       return
     }
+
+    const now = Date.now()
+    searchTimes.current = searchTimes.current.filter(time => now - time < 60_000)
+    if (now - (searchTimes.current[searchTimes.current.length - 1] || 0) < ACTION_COOLDOWN_MS) {
+      setError('Please wait a moment before searching again.')
+      return
+    }
+    if (searchTimes.current.length >= 10) {
+      setError('Search limit reached. Please try again in a minute.')
+      return
+    }
+    searchTimes.current.push(now)
 
     const firstName = parts[0]
     const lastName =
       parts.slice(1).join(' ')
 
     setBusy(true)
+    searchRunning.current = true
 
     try {
       const result = await supabase
@@ -269,11 +311,11 @@ export default function Friends({ userId }) {
         )
         .ilike(
           'first_name',
-          `%${firstName}%`
+          firstName
         )
         .ilike(
           'last_name',
-          `%${lastName}%`
+          lastName
         )
         .neq('user_id', userId)
         .limit(10)
@@ -310,12 +352,16 @@ export default function Friends({ userId }) {
           'Could not search members.'
       )
     } finally {
+      searchRunning.current = false
       setBusy(false)
     }
   }
 
   function requestPerson(person) {
     act(async () => {
+      if (!allowAction(lastActionAt, 'friend-request', 2000)) {
+        throw new Error('Please wait a moment before sending another friend request.')
+      }
       const result =
         await sendFriendRequest(
           supabase,
@@ -329,8 +375,27 @@ export default function Friends({ userId }) {
     })
   }
 
+  async function hasValidImageSignature(image) {
+    const bytes = new Uint8Array(await image.slice(0, 12).arrayBuffer())
+    if (image.type === 'image/jpeg') {
+      return bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff
+    }
+    if (image.type === 'image/png') {
+      return bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47 &&
+        bytes[4] === 0x0d && bytes[5] === 0x0a && bytes[6] === 0x1a && bytes[7] === 0x0a
+    }
+    if (image.type === 'image/webp') {
+      return String.fromCharCode(...bytes.slice(0, 4)) === 'RIFF' &&
+        String.fromCharCode(...bytes.slice(8, 12)) === 'WEBP'
+    }
+    return false
+  }
+
   function changeFriend(link, accept) {
     act(async () => {
+      if (!allowAction(lastActionAt, `friend-change-${link.id}`, 2000)) {
+        throw new Error('Please wait a moment before changing this connection again.')
+      }
       const result = accept
         ? await supabase
             .from('friendships')
@@ -369,6 +434,9 @@ export default function Friends({ userId }) {
     event.preventDefault()
 
     act(async () => {
+      if (!allowAction(lastActionAt, 'photo-post', 5000)) {
+        throw new Error('Please wait a few seconds before posting another photo.')
+      }
       if (
         !friends.some(
           link =>
@@ -384,12 +452,19 @@ export default function Friends({ userId }) {
         !file ||
         !types[file.type] ||
         !file.size ||
-        file.size >
-          5 * 1024 * 1024
+        file.size > MAX_PHOTO_BYTES
       ) {
         throw new Error(
           'Choose a JPEG, PNG, or WebP photo up to 5 MB.'
         )
+      }
+
+      const cleanedCaption = caption.trim()
+      if (cleanedCaption.length > 500 || hasControlCharacters(cleanedCaption)) {
+        throw new Error('Captions must be 500 characters or fewer and cannot contain control characters.')
+      }
+      if (!await hasValidImageSignature(file)) {
+        throw new Error('The selected file does not match its JPEG, PNG, or WebP type.')
       }
 
       const id = crypto.randomUUID()
@@ -406,6 +481,9 @@ export default function Friends({ userId }) {
           })
 
       if (upload.error) {
+        if (upload.error.message?.includes('Photo upload limit reached')) {
+          throw new Error('Photo upload limit reached. Try again later.')
+        }
         throw new Error(
           'Photo upload failed. Please retry.'
         )
@@ -418,13 +496,17 @@ export default function Friends({ userId }) {
           author: userId,
           recipient,
           object_path: path,
-          caption: caption.trim(),
+          caption: cleanedCaption,
         })
 
       if (result.error) {
         await supabase.storage
           .from(bucket)
           .remove([path])
+
+        if (result.error.message?.includes('Photo post limit reached')) {
+          throw new Error('Photo post limit reached. Try again later.')
+        }
 
         throw new Error(
           'Could not post photo. Confirm you are still friends and retry.'
@@ -476,14 +558,9 @@ export default function Friends({ userId }) {
 
   return (
     <section className="workout-card friends-panel">
-      <h2>Friends &amp; photos</h2>
+      <h2>Friends</h2>
 
-      <p>
-        Search for another member by
-        their first and last name,
-        connect, and privately share
-        photos.
-      </p>
+      <p>Find members by name and share photos privately.</p>
 
       <form
         className="profile-form"
@@ -496,6 +573,7 @@ export default function Friends({ userId }) {
         <input
           id="friend-name"
           type="text"
+          maxLength={80}
           placeholder="First and last name"
           required
           value={searchName}
@@ -581,7 +659,7 @@ export default function Friends({ userId }) {
         </p>
       ) : (
         <>
-          <h3>Your connections</h3>
+          <h3>Connections</h3>
 
           {!links.length && (
             <p>
@@ -706,6 +784,7 @@ export default function Friends({ userId }) {
                 ref={input}
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
+                aria-describedby="photo-size-help"
                 required
                 onChange={event =>
                   setFile(
@@ -714,6 +793,7 @@ export default function Friends({ userId }) {
                   )
                 }
               />
+              <small id="photo-size-help">Maximum file size: 5 MB.</small>
 
               <label htmlFor="photo-caption">
                 Caption (optional)

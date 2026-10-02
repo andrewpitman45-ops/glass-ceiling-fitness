@@ -51,7 +51,7 @@ export default function WeightTracker({ profile, onSave }) {
   return (
     <section className="workout-card weight-tracker">
       <p className="small-text">Track changes over time</p>
-      <h3>Your weight trend</h3>
+      <h3>Weight trend</h3>
       <p className="profile-intro">Add your weight regularly to see whether your trend is moving up or down.</p>
       <div className="nutrition-summary">
         <div><span>Current weight</span><strong>{latestWeight ? `${latestWeight} lb` : '—'}</strong></div>

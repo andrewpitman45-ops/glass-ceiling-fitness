@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { localFoods } from './dunkinFoods'
 import { loadUsdaFoods, searchFoods, servingOptions } from './foodSearch'
 
@@ -35,6 +35,7 @@ export default function Nutrition({ profile, onSave }) {
   const [foodSearchStatus, setFoodSearchStatus] = useState('')
   const [selectedFood, setSelectedFood] = useState(null)
   const [saved, setSaved] = useState(false)
+  const lastRemoteSearchAt = useRef(0)
   const todaysEntries = useMemo(() => entries.filter(entry => entry.date === entryDate), [entries, entryDate])
   const todaysCalories = todaysEntries.reduce((total, entry) => total + entry.calories, 0)
   const macroTotals = todaysEntries.reduce((totals, entry) => ({
@@ -46,11 +47,12 @@ export default function Nutrition({ profile, onSave }) {
 
   useEffect(() => {
     const searchTerm = food.trim()
-    if (searchTerm.length < 2 || selectedFood?.name === searchTerm) {
+    const normalizedSearch = searchTerm.replace(/\s+/g, ' ').slice(0, 80)
+    if (normalizedSearch.length < 3 || selectedFood?.name === searchTerm) {
       return undefined
     }
 
-    let localResults = searchFoods(localFoods, searchTerm)
+    let localResults = searchFoods(localFoods, normalizedSearch)
     const controller = new AbortController()
     let active = true
     let networkTimeout
@@ -68,16 +70,22 @@ export default function Nutrition({ profile, onSave }) {
         catalogUnavailable = true
       }
       if (!active) return
+      const remoteDelay = Math.max(0, 1200 - (Date.now() - lastRemoteSearchAt.current))
+      await new Promise(resolve => {
+        networkTimeout = setTimeout(resolve, remoteDelay)
+      })
+      if (!active) return
       networkTimeout = setTimeout(() => controller.abort(), 8000)
       try {
         const params = new URLSearchParams({
-          search_terms: searchTerm,
+          search_terms: normalizedSearch,
           search_simple: '1',
           action: 'process',
           json: '1',
           page_size: '8',
           fields: 'code,product_name,brands,nutriments,serving_quantity,serving_size',
         })
+        lastRemoteSearchAt.current = Date.now()
         const response = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?${params}`, { signal: controller.signal })
         if (!response.ok) throw new Error('Food search failed')
         const result = await response.json()
@@ -95,7 +103,7 @@ export default function Nutrition({ profile, onSave }) {
       } finally {
         clearTimeout(networkTimeout)
       }
-    }, 250)
+    }, 750)
 
     return () => {
       active = false
@@ -156,10 +164,8 @@ export default function Nutrition({ profile, onSave }) {
   }
   return (
     <section className="workout-card">
-      <p className="small-text">Your nutrition planning space</p>
-      <h3>A routine that fits your life</h3>
-      <p className="profile-intro">Log what you eat, keep an eye on calories, and save the notes that make your plan work in everyday life.</p>
-      {profile.clientType === 'youre-with-us' && <p className="profile-intro">You decide what to include, such as foods you enjoy, textures you prefer, and any support you would like with meal preparation.</p>}
+      <p className="small-text">Nutrition</p>
+      <h3>Food log</h3>
       <div className="nutrition-summary">
         <div><span>{entryDate === today() ? "Today's calories" : `${entryDate} calories`}</span><strong>{todaysCalories}</strong></div>
         <div><span>Food items</span><strong>{todaysEntries.length}</strong></div>
@@ -184,7 +190,7 @@ export default function Nutrition({ profile, onSave }) {
           <label>Date<input type="date" value={entryDate} onChange={event => setEntryDate(event.target.value)} required /></label>
           <label>Meal<select value={meal} onChange={event => setMeal(event.target.value)}><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option></select></label>
           <label className="food-search-label">Food item
-            <input value={food} onChange={event => { setFood(event.target.value); setSelectedFood(null); setFoodResults([]); setFoodSearchStatus('') }} placeholder="e.g. steak, chicken breast, Greek yogurt" autoComplete="off" required />
+            <input maxLength={80} value={food} onChange={event => { setFood(event.target.value.slice(0, 80)); setSelectedFood(null); setFoodResults([]); setFoodSearchStatus('') }} placeholder="e.g. steak, chicken breast, Greek yogurt" autoComplete="off" required />
             {foodResults.length > 0 && <div className="food-results" role="listbox" aria-label="Food search results">
               {foodResults.map(product => <button type="button" key={product.code || product.product_name} role="option" onClick={() => { setServings('1'); applyFood(product, '1') }}>
                 <strong>{product.product_name}</strong><span>{product.brands || product.source || 'Open Food Facts'} · per 100g: {Math.round(nutritionPer100g(product).calories)} cal</span>

@@ -1,4 +1,6 @@
 ﻿export function friendError(error, fallback = 'Could not load friends and photos.') {
+  if (error?.message?.includes('Friend request limit reached')) return 'Friend request limit reached. Try again later.'
+  if (error?.message?.includes('Photo post limit reached')) return 'Photo post limit reached. Try again later.'
   const code = error?.code
   if (['42P01', 'PGRST205'].includes(code)) return 'Friends and photos setup is missing. The site administrator needs to apply the friends-and-photos database migration.'
   if (code === '23503') return 'No account matches that friend code. Ask your friend to copy their code from Friends & photos.'

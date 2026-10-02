@@ -1,11 +1,14 @@
 ﻿import { cleanWorkoutProfile } from './workoutPlan'
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import App from './App'
 import Brand from './Brand'
 import { ProfileForm } from './Profiles'
 import { supabase } from './supabase'
 
+const LegalPage = lazy(() => import('./LegalPages'))
 const WORKOUT_RESET_VERSION = 2
+const LEGAL_VERSION = '2026-10-02'
+const LEGAL_PAGE_KEYS = ['terms', 'privacy', 'disclaimer', 'community', 'contact']
 const EMPTY_WEEKLY_WORKOUTS = {
   monday: [],
   tuesday: [],
@@ -36,13 +39,11 @@ function AccountForm({ recovery, onRecovered }) {
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
 
-  const creating = mode === 'signup'
-
   async function submit(event) {
     event.preventDefault()
     setMessage('')
 
-    if ((creating || recovery) && password !== confirm) {
+    if (recovery && password !== confirm) {
       setMessage('Passwords must match.')
       return
     }
@@ -57,14 +58,6 @@ function AccountForm({ recovery, onRecovered }) {
 
       if (recovery) {
         result = await supabase.auth.updateUser({ password })
-      } else if (creating) {
-        result = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: redirectTo,
-          },
-        })
       } else if (mode === 'reset') {
         result = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo,
@@ -87,17 +80,15 @@ function AccountForm({ recovery, onRecovered }) {
         onRecovered()
       } else {
         setMessage(
-          creating
-            ? 'Check your email to confirm your account before signing in.'
-            : mode === 'reset'
-              ? 'If an account exists for this email, a reset link will arrive shortly.'
-              : ''
+          mode === 'reset'
+            ? 'If an account exists for this email, a reset link will arrive shortly.'
+            : ''
         )
       }
     } catch (error) {
       setMessage(
         mode === 'login' && !recovery
-          ? 'Unable to sign in. Check your email and password, and confirm your email if you just signed up.'
+          ? 'Unable to sign in. Check your email and password.'
           : error.message
       )
     } finally {
@@ -110,15 +101,13 @@ function AccountForm({ recovery, onRecovered }) {
       <h2>
         {recovery
           ? 'Choose a new password'
-          : creating
-            ? 'Create a private account'
-            : mode === 'reset'
+          : mode === 'reset'
               ? 'Reset your password'
               : 'Sign in to your account'}
       </h2>
 
       <p className="profile-intro">
-        Your goals, fitness plan, and nutrition notes in your own account.
+        Workouts, food logs, and progress.
       </p>
 
       <form className="profile-form" onSubmit={submit}>
@@ -145,11 +134,11 @@ function AccountForm({ recovery, onRecovered }) {
               id="account-password"
               type="password"
               autoComplete={
-                creating || recovery
+                recovery
                   ? 'new-password'
                   : 'current-password'
               }
-              minLength={creating || recovery ? 12 : 1}
+              minLength={recovery ? 12 : 1}
               required
               value={password}
               onChange={(event) =>
@@ -159,7 +148,7 @@ function AccountForm({ recovery, onRecovered }) {
           </>
         )}
 
-        {(creating || recovery) && (
+        {recovery && (
           <>
             <p className="small-text">
               Use at least 12 characters.
@@ -192,9 +181,7 @@ function AccountForm({ recovery, onRecovered }) {
             ? 'Please wait…'
             : recovery
               ? 'Save password'
-              : creating
-                ? 'Create account'
-                : mode === 'reset'
+              : mode === 'reset'
                   ? 'Send reset link'
                   : 'Sign in'}
         </button>
@@ -208,26 +195,7 @@ function AccountForm({ recovery, onRecovered }) {
 
       {!recovery && (
         <div className="account-actions">
-          <button
-            type="button"
-            className="secondary-button"
-            disabled={busy}
-            onClick={() => {
-              setMode(
-                creating || mode === 'reset'
-                  ? 'login'
-                  : 'signup'
-              )
-              setMessage('')
-              setPassword('')
-              setConfirm('')
-            }}
-          >
-            {creating || mode === 'reset'
-              ? 'Back to sign in'
-              : 'Create an account'}
-          </button>
-
+          {mode === 'reset' && <button type="button" className="secondary-button" disabled={busy} onClick={() => { setMode('login'); setMessage(''); setPassword('') }}>Back to sign in</button>}
           {mode === 'login' && (
             <button
               type="button"
@@ -244,15 +212,24 @@ function AccountForm({ recovery, onRecovered }) {
           )}
         </div>
       )}
+      {!recovery && mode === 'login' && (
+        <p className="invite-only-note">
+          New accounts are invite-only. Contact <a href="mailto:Andrewpitman46@outlook.com">Glass Ceiling Fitness</a> for access.
+        </p>
+      )}
     </>
   )
 }
 
-function Member({ user, onSignOut }) {
+function Member({ user, onSignOut, theme, onToggleTheme }) {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [retry, setRetry] = useState(0)
+  const hasAcceptedCurrentTerms =
+    user.user_metadata?.terms_version === LEGAL_VERSION &&
+    user.user_metadata?.privacy_version === LEGAL_VERSION
+  const [legalAccepted, setLegalAccepted] = useState(hasAcceptedCurrentTerms)
 
   useEffect(() => {
     let active = true
@@ -324,6 +301,24 @@ function Member({ user, onSignOut }) {
   }, [user.id, retry])
 
   async function createProfile(details) {
+    if (!legalAccepted) {
+      return 'Accept the Terms of Use and Privacy Policy to continue.'
+    }
+
+    const { error: legalError } = await supabase.auth.updateUser({
+      data: {
+        legal_accepted_at: hasAcceptedCurrentTerms
+          ? user.user_metadata.legal_accepted_at
+          : new Date().toISOString(),
+        terms_version: LEGAL_VERSION,
+        privacy_version: LEGAL_VERSION,
+      },
+    })
+
+    if (legalError) {
+      return 'Could not save your agreement. Please retry.'
+    }
+
     const next = {
       ...details,
       id: user.id,
@@ -366,6 +361,8 @@ function Member({ user, onSignOut }) {
         key={user.id}
         initialProfile={profile}
         onSignOut={onSignOut}
+        theme={theme}
+        onToggleTheme={onToggleTheme}
       />
     )
   }
@@ -395,6 +392,20 @@ function Member({ user, onSignOut }) {
         <>
           <h2>Make it yours</h2>
 
+          <label className="legal-consent">
+            <input
+              type="checkbox"
+              required
+              checked={legalAccepted}
+              onChange={event => setLegalAccepted(event.target.checked)}
+            />
+            <span>
+              I agree to the{' '}
+              <a href="?legal=terms" target="_blank" rel="noreferrer">Terms of Use</a>
+              {' '}and{' '}
+              <a href="?legal=privacy" target="_blank" rel="noreferrer">Privacy Policy</a>.
+            </span>
+          </label>
           <ProfileForm onSave={createProfile} />
 
           <p className="demo-note">
@@ -421,6 +432,29 @@ export default function AccountGate() {
   const [loading, setLoading] = useState(Boolean(supabase))
   const [recovery, setRecovery] = useState(false)
   const [error, setError] = useState('')
+  const [theme, setTheme] = useState(() => {
+    try {
+      return window.localStorage.getItem('glass-ceiling-fitness.theme') === 'dark' ? 'dark' : 'light'
+    } catch {
+      return 'light'
+    }
+  })
+
+  const requestedLegalPage = new URLSearchParams(window.location.search).get('legal')
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#0a1119' : '#fffafa')
+    try {
+      window.localStorage.setItem('glass-ceiling-fitness.theme', theme)
+    } catch {
+      // Keep the selected theme for this page even when storage is unavailable.
+    }
+  }, [theme])
+
+  function toggleTheme() {
+    setTheme(current => current === 'dark' ? 'light' : 'dark')
+  }
 
   useEffect(() => {
     if (!supabase) {
@@ -477,6 +511,14 @@ export default function AccountGate() {
     }
   }, [])
 
+  if (LEGAL_PAGE_KEYS.includes(requestedLegalPage)) {
+    return (
+      <Suspense fallback={<main className="legal-shell">Loading legal page…</main>}>
+        <LegalPage page={requestedLegalPage} />
+      </Suspense>
+    )
+  }
+
   async function signOut() {
     const { error } = await supabase.auth.signOut({
       scope: 'local',
@@ -510,10 +552,17 @@ export default function AccountGate() {
           key={session.user.id}
           user={session.user}
           onSignOut={signOut}
+          theme={theme}
+          onToggleTheme={toggleTheme}
         />
       ) : (
         <main className="account-shell">
-          <Brand />
+          <div className="account-header">
+            <Brand />
+            <button className="theme-toggle secondary-button" type="button" onClick={toggleTheme}>
+              {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+            </button>
+          </div>
 
           <section className="login-card account-card">
             {!supabase ? (
@@ -544,9 +593,11 @@ export default function AccountGate() {
           </section>
 
           <p className="small-text">
-            Personalized fitness for people with
-            disabilities. Your goals. Your way.
+            Glass Ceiling Fitness
           </p>
+          <nav className="account-legal-links" aria-label="Legal pages">
+            {LEGAL_PAGE_KEYS.map(page => <a key={page} href={`?legal=${page}`} target="_blank" rel="noreferrer">{page === 'terms' ? 'Terms' : page === 'privacy' ? 'Privacy' : page === 'disclaimer' ? 'Health Disclaimer' : page === 'community' ? 'Community Rules' : 'Contact'}</a>)}
+          </nav>
         </main>
       )}
     </>

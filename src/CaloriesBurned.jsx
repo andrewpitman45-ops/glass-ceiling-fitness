@@ -39,9 +39,8 @@ export default function CaloriesBurned({ profile, onSave }) {
 
   return (
     <section className="workout-card">
-      <p className="small-text">Track your movement and workouts</p>
-      <h3>Your daily burn</h3>
-      <p className="profile-intro">Completed workouts are added automatically. You can also record walks, activities, or other movement here.</p>
+      <p className="small-text">Activity</p>
+      <h3>Calories burned</h3>
       <div className="nutrition-summary">
         <div><span>{entryDate === today() ? "Today's calories burned" : `${entryDate} calories burned`}</span><strong>{todaysCalories}</strong></div>
         <div><span>Activities</span><strong>{todaysEntries.length}</strong></div>

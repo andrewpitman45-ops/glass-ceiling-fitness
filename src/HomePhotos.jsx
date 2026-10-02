@@ -33,7 +33,7 @@ export default function HomePhotos({ userId, onManageFriends }) {
     <div className="home-photos-header">
       <div>
         <h3 id="home-photos-title">Photos from friends</h3>
-        <p className="small-text">The latest moments friends have shared with you.</p>
+        <p className="small-text">Recent photos</p>
       </div>
       <div className="home-photos-actions">
         <button className="secondary-button" disabled={feed.loading} onClick={reload}>Refresh photos</button>
@@ -42,7 +42,7 @@ export default function HomePhotos({ userId, onManageFriends }) {
     </div>
     {feed.loading ? <p role="status">Loading your photos...</p> : feed.error ?
       <p className="form-error" role="alert">{feed.error}</p> : feed.posts.length === 0 ?
-        <p>No photos received yet. Connect with friends and the photos they send you will appear here.</p> :
+        <p>No photos yet.</p> :
         <div className="friend-photo-grid">{feed.posts.map(post => <article className="friend-post" key={post.id}>
           <FriendPhoto post={post} />
           {post.caption && <p>{post.caption}</p>}

@@ -221,3 +221,135 @@ button:disabled { cursor: wait; opacity: .6; }
 .home-photos .friend-post { min-width: 0; margin: 0; }
 .home-photos .friend-photo { aspect-ratio: 4 / 3; background: #fff; }
 .friends-panel > input { font: inherit; padding: 12px; border: 1px solid var(--line); border-radius: 18px; background: white; color: var(--text); }
+
+:root { font-family: Inter, "Segoe UI", Arial, sans-serif; }
+.dashboard { padding: 24px clamp(16px, 3vw, 40px) 56px; }
+.app-shell { align-items: center; }
+.entry-hero { padding: 24px 0; }
+.entry-hero h1 { letter-spacing: -2px; }
+.hero-copy { max-width: 400px; line-height: 1.55; }
+.brand img { filter: none; }
+.login-card, .goal-card, .workout-card, .stat-card, .reward-card { border-radius: 5px; box-shadow: none; }
+.login-card { padding: clamp(22px, 3vw, 34px); }
+.main-button, .secondary-button, .sign-out, .complete-button, .builder-title button, .exercise button, .category-button, .space-bubble, .profile-choice { border-radius: 4px; box-shadow: none; }
+.top-bar { margin-bottom: 28px; padding-bottom: 16px; }
+.profile-nav { gap: 6px; align-items: center; }
+.profile-nav button.nav-action { width: auto; max-width: none; min-height: 40px; height: 40px; padding: 8px 13px; border-radius: 4px; font-size: 12px; font-weight: 700; }
+.welcome { margin-bottom: 20px; }
+.welcome p { letter-spacing: 1.4px; }
+.welcome h2 { font-size: clamp(28px, 3.5vw, 38px); font-weight: 780; letter-spacing: -.8px; }
+.goal-card, .workout-card, .stat-card { padding: 22px; }
+.goal-card, .workout-card { margin-bottom: 14px; }
+.stats-grid { gap: 12px; margin-bottom: 18px; }
+.stat-card h3 { font-size: 32px; }
+.day-selector { gap: 5px; margin-bottom: 16px; }
+.day-selector button { border-radius: 3px; }
+.profile-form input, .profile-form select, .profile-form textarea, .exercise-inputs input, .nutrition-inputs input, .nutrition-inputs select, .paste-workout, .friends-panel > input { border-radius: 3px; }
+.paste-workout { min-height: 170px; }
+.exercise { border-color: var(--line); }
+.builder-exercise, .active-workout-card, .info-group, .friend-connection, .friend-post { border-radius: 3px; padding: 16px; margin-top: 12px; }
+.progress-track, .macro-track { border-radius: 2px; }
+.progress-fill { border-radius: 2px; }
+.nutrition-summary > div, .macro-chart, .weight-chart-wrap { border-radius: 3px; }
+.food-results { border-radius: 3px; }
+.food-results button { border-radius: 2px; }
+.friend-photo { border-radius: 2px; }
+.profile-form .client-options label, .client-options label:has(input:checked) { border-radius: 3px; }
+.nutrition-inputs input, .nutrition-inputs select { border-radius: 3px; }
+.friends-panel { max-width: 900px; }
+.account-header { display: flex; align-items: center; justify-content: space-between; gap: 20px; width: min(100%, 480px); }
+.account-header .brand { margin-right: auto; }
+.account-legal-links, .legal-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 18px; }
+.account-legal-links a, .legal-links a { color: var(--accent); font-size: 12px; }
+.legal-consent { display: flex !important; align-items: flex-start; gap: 10px; margin: 20px 0 !important; font-size: 13px !important; line-height: 1.6; }
+.legal-consent input { flex: 0 0 18px; width: 18px !important; min-height: 18px !important; margin: 2px 0 0; padding: 0; border-radius: 3px; accent-color: var(--accent); }
+.legal-consent span { font-weight: 400; }
+.legal-consent a { color: var(--accent); text-decoration: underline; }
+.legal-shell { min-height: 100svh; padding: 24px clamp(16px, 4vw, 48px) 64px; background: var(--bg); color: var(--text); }
+.legal-header { display: flex; justify-content: space-between; align-items: center; max-width: 900px; margin: 0 auto 28px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.legal-brand { color: var(--text); font-size: 13px; font-weight: 800; letter-spacing: 2px; text-decoration: none; }
+.legal-document { max-width: 900px; margin: 0 auto; padding: clamp(20px, 4vw, 40px); background: var(--panel); border: 1px solid var(--line); border-radius: 5px; }
+.legal-document h1 { margin-bottom: 8px; font-size: clamp(28px, 4vw, 40px); line-height: 1.15; }
+.legal-effective { color: var(--muted); font-size: 13px; margin-bottom: 30px; }
+.legal-section { padding: 18px 0; border-top: 1px solid var(--line); }
+.legal-section h2 { font-size: 18px; margin-bottom: 10px; }
+.legal-section p { color: var(--muted); font-size: 14px; line-height: 1.7; }
+.legal-links { justify-content: flex-start; border-top: 1px solid var(--line); padding-top: 20px; }
+.legal-contact-link { display: inline-block; margin: 10px 0 22px; color: var(--accent); font-weight: 700; }
+@media (max-width: 760px) {
+  .top-bar { align-items: flex-start; }
+  .profile-nav { display: flex; overflow-x: auto; flex-wrap: nowrap; justify-content: flex-start; width: 100%; padding-bottom: 4px; }
+  .profile-nav button.nav-action { flex: 0 0 auto; }
+}
+@media (max-width: 420px) {
+  .profile-nav { gap: 5px; }
+  .profile-nav button.nav-action { padding: 7px 10px; font-size: 11px; }
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0a1119;
+  --panel: #111d28;
+  --text: #edf5f8;
+  --muted: #9aabba;
+  --line: #2a3b49;
+  --accent: #42d8e8;
+  background: var(--bg);
+  color: var(--text);
+}
+html[data-theme="dark"] body { background: var(--bg); color: var(--text); }
+html[data-theme="dark"] .app-shell, html[data-theme="dark"] .dashboard, html[data-theme="dark"] .account-shell {
+  background: linear-gradient(135deg, #0a1119f2, #0a1119e8), url('/shattered-glass.svg') center top / cover fixed, var(--bg);
+}
+html[data-theme="dark"] button:focus-visible, html[data-theme="dark"] input:focus-visible, html[data-theme="dark"] select:focus-visible, html[data-theme="dark"] textarea:focus-visible, html[data-theme="dark"] a:focus-visible { outline-color: var(--accent); }
+html[data-theme="dark"] .eyebrow { color: var(--text); }
+html[data-theme="dark"] .brand-fitness span, html[data-theme="dark"] .brand-caption, html[data-theme="dark"] .card-kicker, html[data-theme="dark"] .hero-kicker,
+html[data-theme="dark"] .welcome p, html[data-theme="dark"] .stat-card h3, html[data-theme="dark"] .exercise-video-link, html[data-theme="dark"] .video-link,
+html[data-theme="dark"] .save-status, html[data-theme="dark"] .calorie-estimate, html[data-theme="dark"] .exercise button,
+html[data-theme="dark"] .reward-week, html[data-theme="dark"] .reward-pie strong, html[data-theme="dark"] .nutrition-summary strong,
+html[data-theme="dark"] .goal-header > strong, html[data-theme="dark"] .nutrition-item button, html[data-theme="dark"] .info-group h4 { color: var(--accent); }
+html[data-theme="dark"] .login-card, html[data-theme="dark"] .goal-card, html[data-theme="dark"] .workout-card, html[data-theme="dark"] .stat-card, html[data-theme="dark"] .reward-card,
+html[data-theme="dark"] .profile-choice, html[data-theme="dark"] .profile-nav button.nav-action, html[data-theme="dark"] .settings-menu-panel { background: #111d28; border-color: var(--line); color: var(--text); }
+html[data-theme="dark"] .goal-card, html[data-theme="dark"] .workout-card, html[data-theme="dark"] .login-card, html[data-theme="dark"] .stat-card, html[data-theme="dark"] .reward-card,
+html[data-theme="dark"] .profile-choice, html[data-theme="dark"] .profile-nav button.nav-action, html[data-theme="dark"] .settings-menu-panel { box-shadow: none; }
+html[data-theme="dark"] .main-button { background: var(--accent); border-color: var(--accent); color: #06161b; }
+html[data-theme="dark"] .main-button:hover { background: #7ae7f1; border-color: #7ae7f1; }
+html[data-theme="dark"] .secondary-button, html[data-theme="dark"] .sign-out, html[data-theme="dark"] .builder-title button,
+html[data-theme="dark"] .complete-button, html[data-theme="dark"] .exercise button, html[data-theme="dark"] .day-selector .secondary-button { color: var(--text); background: #152430; border-color: #3a5262; }
+html[data-theme="dark"] .secondary-button:hover, html[data-theme="dark"] .sign-out:hover, html[data-theme="dark"] .builder-title button:hover, html[data-theme="dark"] .complete-button:hover,
+html[data-theme="dark"] .exercise button:hover, html[data-theme="dark"] .profile-choice:hover, html[data-theme="dark"] .profile-nav button.nav-action:hover { background: #1c3441; border-color: var(--accent); }
+html[data-theme="dark"] .settings-menu-item { color: var(--text); }
+html[data-theme="dark"] .settings-menu-item:hover, html[data-theme="dark"] .settings-menu-item:focus-visible, html[data-theme="dark"] .food-results button:hover { background: #1b303a; color: var(--accent); }
+html[data-theme="dark"] .day-selector .main-button { background: var(--accent); color: #06161b; }
+html[data-theme="dark"] .profile-form input, html[data-theme="dark"] .profile-form select, html[data-theme="dark"] .profile-form textarea,
+html[data-theme="dark"] .exercise-inputs input, html[data-theme="dark"] .nutrition-inputs input, html[data-theme="dark"] .nutrition-inputs select,
+html[data-theme="dark"] .paste-workout, html[data-theme="dark"] .friends-panel > input, html[data-theme="dark"] .bubble-control select {
+  background: #0b151e; color: var(--text); border-color: #344957;
+}
+html[data-theme="dark"] .profile-form input:hover, html[data-theme="dark"] .profile-form select:hover { border-color: var(--accent); }
+html[data-theme="dark"] .client-options label:has(input:checked) { background: #12303a; border-color: var(--accent); }
+html[data-theme="dark"] .category-button { background: #0d1822; color: var(--text); border-color: var(--line); }
+html[data-theme="dark"] .category-button:hover, html[data-theme="dark"] .active-category, html[data-theme="dark"] .active-category:hover { background: #12303a; border-color: var(--accent); color: var(--accent); }
+html[data-theme="dark"] .builder-exercise, html[data-theme="dark"] .active-workout-card, html[data-theme="dark"] .info-group,
+html[data-theme="dark"] .friend-connection, html[data-theme="dark"] .friend-post, html[data-theme="dark"] .nutrition-summary > div,
+html[data-theme="dark"] .macro-chart, html[data-theme="dark"] .weight-chart-wrap { background: #0e1923; border-color: var(--line); }
+html[data-theme="dark"] .profile-intro, html[data-theme="dark"] .small-text, html[data-theme="dark"] .selected-day-label,
+html[data-theme="dark"] .stat-card p, html[data-theme="dark"] .food-results span, html[data-theme="dark"] .food-search-status,
+html[data-theme="dark"] .nutrition-summary span, html[data-theme="dark"] .nutrition-item span, html[data-theme="dark"] .demo-note,
+html[data-theme="dark"] .entry-footer { color: var(--muted); }
+html[data-theme="dark"] .completed-button, html[data-theme="dark"] .completed-button:hover { background: #153438; color: #8ce9d7; border-color: #388a84; }
+html[data-theme="dark"] .progress-track, html[data-theme="dark"] .macro-track { background: #243540; }
+html[data-theme="dark"] .progress-fill, html[data-theme="dark"] .macro-protein, html[data-theme="dark"] .macro-carbs, html[data-theme="dark"] .macro-fat { background: var(--accent); }
+html[data-theme="dark"] .reward-card { border-left-color: var(--accent); }
+html[data-theme="dark"] .reward-pie { background: conic-gradient(var(--accent) var(--reward-progress), #243540 0deg); }
+html[data-theme="dark"] .reward-pie::after { background: #111d28; }
+html[data-theme="dark"] .food-results { background: #111d28; border-color: var(--line); }
+html[data-theme="dark"] .food-results button { color: var(--text); }
+html[data-theme="dark"] .chart-axis { stroke: #405564; }
+html[data-theme="dark"] .chart-line { stroke: var(--accent); filter: none; }
+html[data-theme="dark"] .chart-point { fill: var(--accent); stroke: var(--bg); }
+html[data-theme="dark"] .weight-gain, html[data-theme="dark"] .weight-loss { color: var(--accent) !important; }
+html[data-theme="dark"] .form-error, html[data-theme="dark"] .storage-error { color: #ff9f9f; }
+html[data-theme="dark"] .storage-error { background: #301f25; border-color: #6b3a40; }
+html[data-theme="dark"] .friend-photo { background: #0e1923; }
+html[data-theme="dark"] .legal-consent input { accent-color: var(--accent); }

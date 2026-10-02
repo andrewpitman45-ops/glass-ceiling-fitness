@@ -1,5 +1,4 @@
 import Friends from './Friends'
-import HomePhotos from './HomePhotos'
 import { useRef, useState } from 'react'
 import './App.css'
 import Brand from './Brand'
@@ -193,7 +192,7 @@ function normalizeRewards(profile) {
   }
 }
 
-function App({ initialProfile, onSignOut }) {
+function App({ initialProfile, onSignOut, theme, onToggleTheme }) {
   const [screen, setScreen] = useState('home')
   const [selectedDay, setSelectedDay] = useState(() =>
     ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][new Date().getDay()]
@@ -413,7 +412,7 @@ const workout = weeklyWorkouts[selectedDay] || []
 
   const daySelector = (
     <div className="day-picker bubble-control">
-      <label htmlFor="workout-day"><strong>Your workout day</strong><span>Choose the day you want to work on.</span></label>
+      <label htmlFor="workout-day"><strong>Workout day</strong><span>Select a day.</span></label>
       <select id="workout-day" value={selectedDay} onChange={event => {
         setSelectedDay(event.target.value)
         setCompleted([])
@@ -427,17 +426,24 @@ const workout = weeklyWorkouts[selectedDay] || []
 
   const navigation = (
     <nav className="profile-nav" aria-label="Profile navigation">
-      <button className="sign-out" onClick={() => setScreen('profile')}>{profile.name}</button>
+      <button className="nav-action" onClick={() => setScreen('builder')}>Log Workout</button>
+      <button className="nav-action" onClick={() => setScreen('nutrition')}>Log Food</button>
+      <button className="nav-action" onClick={() => setScreen('weight')}>Progress</button>
+      <button className="nav-action" onClick={() => setScreen('friends')}>Friends</button>
+      <button className="nav-action" onClick={() => setScreen('profile')}>Profile</button>
       <div className="settings-menu">
-        <button className="gear-button" aria-expanded={menuOpen} aria-label="Open profile settings menu" title="Profile settings" onClick={() => setMenuOpen(!menuOpen)}><span className="menu-lines" aria-hidden="true"><span></span><span></span><span></span></span></button>
+        <button className="nav-action settings-button" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>Settings</button>
         {menuOpen && (
           <div className="settings-menu-panel">
-            <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('home') }}>Workouts</button>
-            <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('weight') }}>Weight tracker</button>
-            <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('nutrition') }}>Nutrition</button>
-            <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('calories') }}>Calories burned</button>
-            <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('info') }}>Workout info</button>
-            <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('friends') }}>Friends &amp; photos</button>
+            <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('home') }}>Dashboard</button>
+            <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('calories') }}>Calories</button>
+            <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('info') }}>Exercise guide</button>
+            <button className="settings-menu-item" onClick={onToggleTheme}>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</button>
+            <a className="settings-menu-item" href="?legal=terms">Terms of Use</a>
+            <a className="settings-menu-item" href="?legal=privacy">Privacy Policy</a>
+            <a className="settings-menu-item" href="?legal=disclaimer">Health Disclaimer</a>
+            <a className="settings-menu-item" href="?legal=community">Community Rules</a>
+            <a className="settings-menu-item" href="?legal=contact">Contact</a>
             <button className="settings-menu-item" disabled={saving} onClick={signOut}>Sign out</button>
           </div>
         )}
@@ -446,13 +452,11 @@ const workout = weeklyWorkouts[selectedDay] || []
   )
   const notice = <>{saving && <p className="welcome" role="status">Saving changes...</p>}{storageError && <div className="storage-error" role="alert">{storageError} <button className="secondary-button" disabled={saving} onClick={() => updateProfile({})}>Retry save</button></div>}</>
 
-  const supportedClient = profile.clientType === 'youre-with-us'
-
   if (screen === 'friends') {
     return <main className="dashboard">
       <header className="top-bar"><Brand />{navigation}</header>
       <Friends userId={profile.id} />
-      <div className="welcome"><button className="secondary-button" onClick={() => setScreen('home')}>Back to my dashboard</button></div>
+      <div className="welcome"><button className="secondary-button" onClick={() => setScreen('home')}>Dashboard</button></div>
     </main>
   }
 
@@ -460,9 +464,9 @@ const workout = weeklyWorkouts[selectedDay] || []
     return <main className="dashboard">
       <header className="top-bar"><Brand />{navigation}</header>
       {notice}
-      <section className="welcome"><p>{supportedClient ? "Your nutrition space · Through You're With Us" : 'Your personal nutrition space'}</p><h2>Your nutrition plan</h2></section>
+      <section className="welcome"><p>Nutrition</p><h2>Log Food</h2></section>
       <Nutrition key={profile.id} profile={profile} onSave={updateProfile} />
-      <div className="welcome"><button className="secondary-button" onClick={() => setScreen('home')}>Back to my dashboard</button></div>
+      <div className="welcome"><button className="secondary-button" onClick={() => setScreen('home')}>Dashboard</button></div>
     </main>
   }
 
@@ -470,9 +474,9 @@ const workout = weeklyWorkouts[selectedDay] || []
     return <main className="dashboard">
       <header className="top-bar"><Brand />{navigation}</header>
       {notice}
-      <section className="welcome"><p>Daily activity tracking</p><h2>Calories burned</h2></section>
+      <section className="welcome"><p>Activity</p><h2>Calories</h2></section>
       <CaloriesBurned key={profile.id} profile={profile} onSave={updateProfile} />
-      <div className="welcome"><button className="secondary-button" onClick={() => setScreen('home')}>Back to my dashboard</button></div>
+      <div className="welcome"><button className="secondary-button" onClick={() => setScreen('home')}>Dashboard</button></div>
     </main>
   }
 
@@ -480,9 +484,9 @@ const workout = weeklyWorkouts[selectedDay] || []
     return <main className="dashboard">
       <header className="top-bar"><Brand />{navigation}</header>
       {notice}
-      <section className="welcome"><p>Progress tracking</p><h2>Weight tracker</h2></section>
+      <section className="welcome"><p>Progress</p><h2>Weight</h2></section>
       <WeightTracker key={profile.id} profile={profile} onSave={updateProfile} />
-      <div className="welcome"><button className="secondary-button" onClick={() => setScreen('home')}>Back to my dashboard</button></div>
+      <div className="welcome"><button className="secondary-button" onClick={() => setScreen('home')}>Dashboard</button></div>
     </main>
   }
 
@@ -490,11 +494,9 @@ const workout = weeklyWorkouts[selectedDay] || []
     return <main className="dashboard">
       <header className="top-bar"><Brand />{navigation}</header>
       {notice}
-      <section className="welcome"><p>Workout guidance</p><h2>Exercise info</h2></section>
+      <section className="welcome"><p>Workout Info</p><h2>Exercise guide</h2></section>
       <section className="workout-card info-card">
-        <p className="small-text">Move with confidence</p>
-        <h3>Learn each exercise before you begin</h3>
-        <p className="profile-intro">Use the links below to search YouTube for demonstrations of each exercise, including proper form and setup. These are general educational resources; choose variations that fit your body and comfort level.</p>
+        <h3>Exercise videos</h3>
         <div className="info-list">
           {Object.entries(availableLibrary).map(([category, exercises]) => (
             <div className="info-group" key={category}>
@@ -509,7 +511,7 @@ const workout = weeklyWorkouts[selectedDay] || []
           ))}
         </div>
       </section>
-      <div className="welcome"><button className="secondary-button" onClick={() => setScreen('home')}>Back to my dashboard</button></div>
+      <div className="welcome"><button className="secondary-button" onClick={() => setScreen('home')}>Dashboard</button></div>
     </main>
   }
 
@@ -521,7 +523,7 @@ const workout = weeklyWorkouts[selectedDay] || []
           {navigation}
         </header>
         {notice}
-        <section className="welcome"><p>{supportedClient ? "Your fitness space · Through You're With Us" : 'Your personal fitness space'}</p><h2>Welcome, {profile.name}.</h2></section>
+        <section className="welcome"><p>Glass Ceiling Fitness</p><h2>Dashboard</h2></section>
         {screen === 'profile' ? (
           <section className="workout-card settings-card">
             <h3>Edit profile</h3>
@@ -529,11 +531,10 @@ const workout = weeklyWorkouts[selectedDay] || []
           </section>
         ) : (
           <>
-            <HomePhotos key={profile.id} userId={profile.id} onManageFriends={() => setScreen('friends')} />
             {daySelector}
             <div className="stats-grid">
               <section className="stat-card"><p>Workouts this month</p><h3>{monthlyWorkoutCount}</h3></section>
-              <section className="stat-card"><p>Exercises in your workout</p><h3>{workout.length}</h3></section>
+              <section className="stat-card"><p>Exercises scheduled</p><h3>{workout.length}</h3></section>
             </div>
             <p className="small-text selected-day-label">{selectedDay.charAt(0).toUpperCase() + selectedDay.slice(1)}</p>
             <section className="workout-card">
@@ -543,26 +544,13 @@ const workout = weeklyWorkouts[selectedDay] || []
                 <p><strong>{item.name}</strong>{item.prescription && ' — ' + item.prescription}</p>
                 {item.notes && <p style={{ whiteSpace: 'pre-line' }}>{item.notes}</p>}
               </div>)}
-              <button className="main-button" onClick={() => setScreen('builder')}>{workout.length ? 'Edit Workout' : 'Log Workout'}</button>
+              <button className="main-button" onClick={() => setScreen('builder')}>Log Workout</button>
               {workout.length > 0 && <button className="secondary-button" onClick={() => setScreen('workout')}>Resume workout</button>}
             </section>
-            <nav className="space-bubbles" aria-label="Your fitness spaces">
-              {[
-                ['nutrition', 'Nutrition', 'Meals, food logs & your plan', '?'],
-                ['weight', 'Weight tracker', 'Follow your progress', '?'],
-                ['calories', 'Activity', 'Track calories burned', '?'],
-                ['friends', 'Friends & photos', 'Connect and share a moment', '?'],
-                ['info', 'Exercise guide', 'Find movement demonstrations', '?'],
-              ].map(([destination, title, description, icon]) => <button className="space-bubble" key={destination} onClick={() => setScreen(destination)}>
-                <span className="bubble-icon" aria-hidden="true">{icon}</span>
-                <strong>{title}</strong><span>{description}</span>
-              </button>)}
-            </nav>
             <section className="reward-card">
               <div className="reward-copy">
-                <p className="small-text">Monthly consistency reward</p>
+                <p className="small-text">Progress</p>
                 <h3>{rewardPoints >= 4 ? 'Prize unlocked' : `${rewardPoints} of 4 points`}</h3>
-                <p className="small-text">Complete 7 workouts in one week to earn a point. This month resets automatically at the start of a new month.</p>
                 <p className="reward-week">This week: {currentWeekWorkoutCount} / 7 workouts</p>
               </div>
               <div className="reward-pie" style={{ '--reward-progress': `${rewardProgress * 360}deg` }} role="img" aria-label={`${rewardPoints} of 4 reward points earned this month`}>
@@ -570,7 +558,6 @@ const workout = weeklyWorkouts[selectedDay] || []
                 <span>/ 4</span>
               </div>
             </section>
-            <p className="welcome trainer-credentials">Licensed &amp; insured NASM personal trainer · Your goals. Your pace.</p>
           </>
         )}
       </main>
@@ -604,7 +591,7 @@ const workout = weeklyWorkouts[selectedDay] || []
 
         <section className="workout-card">
           <p className="small-text">Paste a workout plan</p>
-          <h3>Add exercises from text</h3>
+          <h3>Paste a plan</h3>
           <textarea
             className="paste-workout"
             value={pastedWorkout}
@@ -857,12 +844,10 @@ const workout = weeklyWorkouts[selectedDay] || []
 
         <section className="welcome">
 
-          <p>
-            Today's Workout
-          </p>
+          <p>{selectedDay.charAt(0).toUpperCase() + selectedDay.slice(1)}</p>
 
           <h2>
-            Move at Your Pace
+          Workout
           </h2>
 
         </section>
@@ -986,4 +971,3 @@ const workout = weeklyWorkouts[selectedDay] || []
 }
 
 export default App
-

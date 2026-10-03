@@ -523,7 +523,7 @@ const workout = weeklyWorkouts[selectedDay] || []
           {navigation}
         </header>
         {notice}
-        <section className="welcome"><p>Glass Ceiling Fitness</p><h2>Dashboard</h2></section>
+        <section className="welcome"><p>You're With Us Fitness</p><h2>Dashboard</h2></section>
         {screen === 'profile' ? (
           <section className="workout-card settings-card">
             <h3>Edit profile</h3>

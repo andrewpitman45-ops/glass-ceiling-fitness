@@ -214,7 +214,7 @@ function AccountForm({ recovery, onRecovered }) {
       )}
       {!recovery && mode === 'login' && (
         <p className="invite-only-note">
-          New accounts are invite-only. Contact <a href="mailto:Andrewpitman46@outlook.com">Glass Ceiling Fitness</a> for access.
+          New accounts are invite-only. Contact <a href="mailto:Andrewpitman46@outlook.com">You're With Us Fitness</a> for access.
         </p>
       )}
     </>
@@ -444,7 +444,7 @@ export default function AccountGate() {
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#0a1119' : '#fffafa')
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#160d0f' : '#ffffff')
     try {
       window.localStorage.setItem('glass-ceiling-fitness.theme', theme)
     } catch {
@@ -593,7 +593,7 @@ export default function AccountGate() {
           </section>
 
           <p className="small-text">
-            Glass Ceiling Fitness
+            You're With Us Fitness
           </p>
           <nav className="account-legal-links" aria-label="Legal pages">
             {LEGAL_PAGE_KEYS.map(page => <a key={page} href={`?legal=${page}`} target="_blank" rel="noreferrer">{page === 'terms' ? 'Terms' : page === 'privacy' ? 'Privacy' : page === 'disclaimer' ? 'Health Disclaimer' : page === 'community' ? 'Community Rules' : 'Contact'}</a>)}

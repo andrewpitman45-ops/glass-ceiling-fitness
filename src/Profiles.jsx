@@ -53,7 +53,7 @@ export default function Profiles({ profiles, onSelect, onCreate }) {
     <main className="app-shell">
       <div className="entry-brand"><Brand /></div>
       <section className="entry-hero" aria-labelledby="hero-title">
-        <p className="hero-kicker"><span /> GLASS CEILING FITNESS</p>
+        <p className="hero-kicker"><span /> YOU'RE WITH US FITNESS</p>
         <h1 id="hero-title">Fitness<br /><em>Dashboard</em></h1>
         <p className="hero-copy">Workouts, food logs, and progress in one place.</p>
       </section>
@@ -78,7 +78,7 @@ export default function Profiles({ profiles, onSelect, onCreate }) {
         )}
         <p className="demo-note">Profiles are saved on this browser. Anyone using this device can open them.</p>
       </section>
-      <footer className="entry-footer"><span>GLASS CEILING FITNESS</span></footer>
+      <footer className="entry-footer"><span>YOU'RE WITH US FITNESS</span></footer>
     </main>
   )
 }

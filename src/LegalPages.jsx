@@ -1,27 +1,27 @@
 const legalPages = {
   terms: {
     title: 'Terms of Use / EULA',
-    intro: 'Effective date: October 2, 2026. This Agreement governs access to and use of the Glass Ceiling Fitness website, application, and related services (“Service”). By creating an account, accessing, or using the Service, you agree to this Agreement. If you do not agree, do not use the Service.',
+    intro: 'Effective date: October 2, 2026. This Agreement governs access to and use of the You\'re With Us Fitness website, application, and related services (“Service”). By creating an account, accessing, or using the Service, you agree to this Agreement. If you do not agree, do not use the Service.',
     sections: [
       ['1. Eligibility and accounts', [
         'Provide accurate information when creating an account and keep your password secure. You may not access another person’s account without authorization.',
-        'Glass Ceiling Fitness may restrict, suspend, reject, or terminate accounts when reasonably necessary to protect the Service, its users, or comply with applicable law.',
+        'You\'re With Us Fitness may restrict, suspend, reject, or terminate accounts when reasonably necessary to protect the Service, its users, or comply with applicable law.',
       ]],
       ['2. License to use the Service', [
-        'Glass Ceiling Fitness grants you a limited, personal, non-exclusive, non-transferable, and revocable license to use the Service for its intended purposes.',
+        'You\'re With Us Fitness grants you a limited, personal, non-exclusive, non-transferable, and revocable license to use the Service for its intended purposes.',
         'This Agreement does not transfer ownership of the Service, software, branding, designs, content, or intellectual property to you.',
       ]],
       ['3. Fitness and health disclaimer', [
-        'Glass Ceiling Fitness provides fitness, exercise, nutrition-tracking, and wellness-related tools for informational and educational purposes.',
+        'You\'re With Us Fitness provides fitness, exercise, nutrition-tracking, and wellness-related tools for informational and educational purposes.',
         'The Service is not medical advice and is not a substitute for professional medical care, diagnosis, or treatment.',
         'Exercise involves inherent risks, including injury. You are responsible for determining whether an exercise or activity is appropriate for you. Consult an appropriate healthcare professional before beginning or substantially changing an exercise or nutrition program, particularly if you have a medical condition, injury, physical limitation, take medication, are pregnant, or have other health concerns. Stop exercising and seek appropriate medical attention if you experience symptoms that may require medical evaluation.',
       ]],
       ['4. Workout and nutrition information', [
         'Workout plans, calorie estimates, nutrition information, exercise recommendations, progress calculations, and similar information may contain inaccuracies and should be treated as estimates where applicable.',
-        'Individual results vary. Glass Ceiling Fitness does not guarantee weight loss, muscle gain, fitness improvements, health outcomes, or other specific results.',
+        'Individual results vary. You\'re With Us Fitness does not guarantee weight loss, muscle gain, fitness improvements, health outcomes, or other specific results.',
       ]],
       ['5. User content and photos', [
-        'You retain ownership of photos, captions, profile information, workout information, and other content you submit (“User Content”). You grant Glass Ceiling Fitness a limited license to store, process, transmit, and display User Content only as reasonably necessary to operate and provide the Service.',
+        'You retain ownership of photos, captions, profile information, workout information, and other content you submit (“User Content”). You grant You\'re With Us Fitness a limited license to store, process, transmit, and display User Content only as reasonably necessary to operate and provide the Service.',
         'You are responsible for content you upload and must have the necessary rights and permissions to share it. Do not upload unlawful, threatening, abusive, sexually exploitative, malicious, fraudulent, or privacy- or intellectual-property-infringing content.',
       ]],
       ['6. Friends and private sharing', [
@@ -35,32 +35,32 @@ const legalPages = {
         'If features use artificial intelligence or automated systems, their output may be inaccurate, incomplete, or inappropriate for your circumstances. Independently evaluate important information. Do not rely on automated output as medical advice, diagnosis, or treatment.',
       ]],
       ['9. Third-party services', [
-        'The Service may rely on third-party providers for hosting, authentication, databases, storage, analytics, email, or other infrastructure. Those services may have their own terms and privacy practices. Glass Ceiling Fitness is not responsible for outages or failures caused solely by third parties beyond its reasonable control.',
+        'The Service may rely on third-party providers for hosting, authentication, databases, storage, analytics, email, or other infrastructure. Those services may have their own terms and privacy practices. You\'re With Us Fitness is not responsible for outages or failures caused solely by third parties beyond its reasonable control.',
       ]],
       ['10. Privacy', [
-        'Collection and use of personal information is described in the Glass Ceiling Fitness Privacy Policy, which forms part of your use of the Service.',
+        'Collection and use of personal information is described in the You\'re With Us Fitness Privacy Policy, which forms part of your use of the Service.',
       ]],
       ['11. Intellectual property', [
-        'Except for User Content and third-party materials, Glass Ceiling Fitness and its licensors retain all rights in the Service, including its software, branding, logos, graphics, interface, and original content.',
+        'Except for User Content and third-party materials, You\'re With Us Fitness and its licensors retain all rights in the Service, including its software, branding, logos, graphics, interface, and original content.',
         'You may not copy, sell, redistribute, reverse engineer, or commercially exploit protected portions of the Service except as permitted by applicable law or with written authorization.',
       ]],
       ['12. Availability and changes', [
         'The Service may be modified, updated, interrupted, restricted, or discontinued. Continuous or error-free availability is not guaranteed. Features may be added, removed, or changed.',
       ]],
       ['13. Suspension and termination', [
-        'Glass Ceiling Fitness may suspend or terminate access for violations of this Agreement, security concerns, unlawful activity, abuse of other users, or misuse of the Service. You may stop using the Service at any time.',
+        'You\'re With Us Fitness may suspend or terminate access for violations of this Agreement, security concerns, unlawful activity, abuse of other users, or misuse of the Service. You may stop using the Service at any time.',
         'Account and data deletion requests will be handled according to the Privacy Policy and applicable law.',
       ]],
       ['14. Disclaimer of warranties', [
-        'To the maximum extent permitted by law, the Service is provided “as is” and “as available.” Glass Ceiling Fitness disclaims warranties not expressly provided in this Agreement, including implied warranties of merchantability, fitness for a particular purpose, and non-infringement, to the extent permitted by law.',
+        'To the maximum extent permitted by law, the Service is provided “as is” and “as available.” You\'re With Us Fitness disclaims warranties not expressly provided in this Agreement, including implied warranties of merchantability, fitness for a particular purpose, and non-infringement, to the extent permitted by law.',
         'Some jurisdictions do not permit certain warranty exclusions, so some exclusions may not apply to you.',
       ]],
       ['15. Limitation of liability', [
-        'To the maximum extent permitted by applicable law, Glass Ceiling Fitness and its owners, employees, contractors, and affiliates will not be liable for indirect, incidental, special, consequential, or punitive damages arising from use of the Service.',
+        'To the maximum extent permitted by applicable law, You\'re With Us Fitness and its owners, employees, contractors, and affiliates will not be liable for indirect, incidental, special, consequential, or punitive damages arising from use of the Service.',
         'Nothing in this Agreement excludes or limits liability that cannot legally be excluded or limited.',
       ]],
       ['16. Indemnification', [
-        'To the extent permitted by law, you agree to indemnify and hold harmless Glass Ceiling Fitness and its owners, employees, contractors, and affiliates from third-party claims arising from your unlawful use of the Service, your User Content, or your material violation of this Agreement.',
+        'To the extent permitted by law, you agree to indemnify and hold harmless You\'re With Us Fitness and its owners, employees, contractors, and affiliates from third-party claims arising from your unlawful use of the Service, your User Content, or your material violation of this Agreement.',
       ]],
       ['17. Changes to this Agreement', [
         'This Agreement may be updated periodically. When legally required or when material changes are made, users will receive appropriate notice. Continued use after an updated Agreement becomes effective constitutes acceptance where permitted by law.',
@@ -72,7 +72,7 @@ const legalPages = {
         'If any provision is found unenforceable, the remaining provisions will remain in effect to the extent permitted by law.',
       ]],
       ['20. Entire agreement', [
-        'This Agreement, together with the Privacy Policy and any other policies expressly incorporated into it, constitutes the agreement between you and Glass Ceiling Fitness regarding use of the Service.',
+        'This Agreement, together with the Privacy Policy and any other policies expressly incorporated into it, constitutes the agreement between you and You\'re With Us Fitness regarding use of the Service.',
       ]],
       ['21. Contact', [
         'Questions about this Agreement may be directed to Andrewpitman46@outlook.com.',
@@ -118,7 +118,7 @@ const legalPages = {
     intro: 'Effective date: October 2, 2026',
     sections: [
       ['Not medical advice', [
-        'Glass Ceiling Fitness is an informational and educational service. Its workouts, exercise descriptions, nutrition logs, calorie estimates, and progress tools are not medical advice and do not diagnose, treat, or prevent any condition.',
+        'You\'re With Us Fitness is an informational and educational service. Its workouts, exercise descriptions, nutrition logs, calorie estimates, and progress tools are not medical advice and do not diagnose, treat, or prevent any condition.',
       ]],
       ['Consult a professional', [
         'Consult a qualified healthcare professional before beginning or changing an exercise or nutrition program, especially if you have a health condition, injury, disability, physical limitation, take medication, are pregnant, or have other health concerns. Seek individualized guidance on safe adaptations when needed.',
@@ -150,13 +150,13 @@ const legalPages = {
       ]],
       ['Report and enforcement', [
         'Email Andrewpitman46@outlook.com to report content or behavior. Include enough detail to identify the issue, but do not send unnecessary sensitive information.',
-        'Glass Ceiling Fitness may remove content or restrict accounts when reasonably necessary to protect members, the Service, or comply with law.',
+        'You\'re With Us Fitness may remove content or restrict accounts when reasonably necessary to protect members, the Service, or comply with law.',
       ]],
     ],
   },
   contact: {
     title: 'Contact',
-    intro: 'Glass Ceiling Fitness',
+    intro: 'You\'re With Us Fitness',
     sections: [
       ['Email', [
         'For support, privacy requests, legal questions, or community reports, email Andrewpitman46@outlook.com.',
@@ -171,11 +171,11 @@ export default function LegalPage({ page = 'terms', onBack }) {
   return (
     <main className="legal-shell">
       <header className="legal-header">
-        <a className="legal-brand" href="/" aria-label="Glass Ceiling Fitness home">GLASS CEILING FITNESS</a>
+        <a className="legal-brand" href="/" aria-label="You're With Us Fitness home">YOU'RE WITH US FITNESS</a>
         {onBack && <button className="secondary-button" type="button" onClick={onBack}>Back</button>}
       </header>
       <article className="legal-document">
-        <p className="card-kicker">GLASS CEILING FITNESS</p>
+        <p className="card-kicker">YOU'RE WITH US FITNESS</p>
         <h1>{content.title}</h1>
         <p className="legal-effective">{content.intro}</p>
         {content.sections.map(([heading, paragraphs]) => (
@@ -184,7 +184,7 @@ export default function LegalPage({ page = 'terms', onBack }) {
             {paragraphs.map(paragraph => <p key={paragraph}>{paragraph}</p>)}
           </section>
         ))}
-        {page === 'contact' && <a className="legal-contact-link" href="mailto:Andrewpitman46@outlook.com">Email Glass Ceiling Fitness</a>}
+        {page === 'contact' && <a className="legal-contact-link" href="mailto:Andrewpitman46@outlook.com">Email You're With Us Fitness</a>}
         <nav className="legal-links" aria-label="Legal pages">
           {legalPageKeys.map(key => (
             <a key={key} href={`?legal=${key}`}>{legalPages[key].title}</a>

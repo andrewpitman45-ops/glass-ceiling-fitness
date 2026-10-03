@@ -353,3 +353,83 @@ html[data-theme="dark"] .form-error, html[data-theme="dark"] .storage-error { co
 html[data-theme="dark"] .storage-error { background: #301f25; border-color: #6b3a40; }
 html[data-theme="dark"] .friend-photo { background: #0e1923; }
 html[data-theme="dark"] .legal-consent input { accent-color: var(--accent); }
+
+:root {
+  --bg: #fff;
+  --panel: #fff;
+  --text: #21191a;
+  --muted: #62585a;
+  --line: #e7c3c6;
+  --accent: #c9152d;
+}
+
+.app-shell, .dashboard, .account-shell, .legal-shell {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(circle, #c9152d26 1px, transparent 1.7px),
+    radial-gradient(circle, #c9152d1f 1px, transparent 1.7px),
+    linear-gradient(138deg, transparent 0 7%, #c9152d12 7.2% 8.2%, transparent 8.5% 100%),
+    radial-gradient(ellipse at 8% 8%, #c9152d17, transparent 24%),
+    radial-gradient(ellipse at 96% 94%, #c9152d12, transparent 23%);
+  background-size: 13px 13px, 19px 19px, 100% 100%, 100% 100%, 100% 100%;
+  background-position: 0 0, 7px 5px, center, center, center;
+}
+
+.brand img {
+  display: block;
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border: 1px solid #c9152d26;
+  border-radius: 10px;
+  box-shadow: 0 3px 12px #c9152d1c;
+}
+
+.brand {
+  color: inherit;
+  text-decoration: none;
+}
+
+.brand:hover .eyebrow, .brand:hover .brand-fitness { color: var(--accent); }
+
+.eyebrow, .brand-fitness span, .hero-pillars b { color: var(--accent); }
+.login-card, .goal-card, .workout-card, .stat-card, .reward-card,
+.settings-menu-panel, .day-picker {
+  background: #fff;
+  border-color: var(--line);
+}
+
+html[data-theme="dark"] {
+  --bg: #160d0f;
+  --panel: #211417;
+  --text: #fff5f5;
+  --muted: #d1b6ba;
+  --line: #54333a;
+  --accent: #ff3b51;
+}
+
+html[data-theme="dark"] .app-shell,
+html[data-theme="dark"] .dashboard,
+html[data-theme="dark"] .account-shell,
+html[data-theme="dark"] .legal-shell {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(circle, #ff3b5130 1px, transparent 1.7px),
+    radial-gradient(circle, #ff3b5128 1px, transparent 1.7px),
+    linear-gradient(138deg, transparent 0 7%, #ff3b5114 7.2% 8.2%, transparent 8.5% 100%),
+    radial-gradient(ellipse at 8% 8%, #ff3b5117, transparent 24%),
+    radial-gradient(ellipse at 96% 94%, #ff3b5112, transparent 23%);
+  background-size: 13px 13px, 19px 19px, 100% 100%, 100% 100%, 100% 100%;
+  background-position: 0 0, 7px 5px, center, center, center;
+}
+
+html[data-theme="dark"] .main-button {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+html[data-theme="dark"] .main-button:hover {
+  background: #e92740;
+  border-color: #e92740;
+}

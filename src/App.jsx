@@ -432,19 +432,27 @@ const workout = weeklyWorkouts[selectedDay] || []
       <button className="nav-action" onClick={() => setScreen('friends')}>Friends</button>
       <button className="nav-action" onClick={() => setScreen('profile')}>Profile</button>
       <div className="settings-menu">
-        <button className="nav-action settings-button" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>Settings</button>
+        <button
+          className="nav-action settings-button"
+          type="button"
+          aria-expanded={menuOpen}
+          aria-controls="settings-menu-panel"
+          onClick={() => setMenuOpen(open => !open)}
+        >
+          Settings
+        </button>
         {menuOpen && (
-          <div className="settings-menu-panel">
-            <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('home') }}>Dashboard</button>
-            <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('calories') }}>Calories</button>
-            <button className="settings-menu-item" onClick={() => { setMenuOpen(false); setScreen('info') }}>Exercise guide</button>
-            <button className="settings-menu-item" onClick={onToggleTheme}>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</button>
-            <a className="settings-menu-item" href="?legal=terms">Terms of Use</a>
+          <div className="settings-menu-panel" id="settings-menu-panel">
+            <button className="settings-menu-item" type="button" onClick={() => { setMenuOpen(false); setScreen('home') }}>Dashboard</button>
+            <button className="settings-menu-item" type="button" onClick={() => { setMenuOpen(false); setScreen('calories') }}>Calories</button>
+            <button className="settings-menu-item" type="button" onClick={() => { setMenuOpen(false); setScreen('info') }}>Exercise guide</button>
+            <button className="settings-menu-item" type="button" onClick={() => { setMenuOpen(false); onToggleTheme() }}>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</button>
+            <a className="settings-menu-item" href="?legal=terms">Terms of Use / EULA</a>
             <a className="settings-menu-item" href="?legal=privacy">Privacy Policy</a>
             <a className="settings-menu-item" href="?legal=disclaimer">Health Disclaimer</a>
             <a className="settings-menu-item" href="?legal=community">Community Rules</a>
             <a className="settings-menu-item" href="?legal=contact">Contact</a>
-            <button className="settings-menu-item" disabled={saving} onClick={signOut}>Sign out</button>
+            <button className="settings-menu-item" type="button" disabled={saving} onClick={signOut}>Sign out</button>
           </div>
         )}
       </div>

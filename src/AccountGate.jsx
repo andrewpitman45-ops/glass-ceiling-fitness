@@ -401,7 +401,7 @@ function Member({ user, onSignOut, theme, onToggleTheme }) {
             />
             <span>
               I agree to the{' '}
-              <a href="?legal=terms" target="_blank" rel="noreferrer">Terms of Use</a>
+              <a href="?legal=terms" target="_blank" rel="noreferrer">Terms of Use / EULA</a>
               {' '}and{' '}
               <a href="?legal=privacy" target="_blank" rel="noreferrer">Privacy Policy</a>.
             </span>
@@ -596,7 +596,7 @@ export default function AccountGate() {
             You're With Us Fitness
           </p>
           <nav className="account-legal-links" aria-label="Legal pages">
-            {LEGAL_PAGE_KEYS.map(page => <a key={page} href={`?legal=${page}`} target="_blank" rel="noreferrer">{page === 'terms' ? 'Terms' : page === 'privacy' ? 'Privacy' : page === 'disclaimer' ? 'Health Disclaimer' : page === 'community' ? 'Community Rules' : 'Contact'}</a>)}
+            {LEGAL_PAGE_KEYS.map(page => <a key={page} href={`?legal=${page}`} target="_blank" rel="noreferrer">{page === 'terms' ? 'Terms / EULA' : page === 'privacy' ? 'Privacy' : page === 'disclaimer' ? 'Health Disclaimer' : page === 'community' ? 'Community Rules' : 'Contact'}</a>)}
           </nav>
         </main>
       )}

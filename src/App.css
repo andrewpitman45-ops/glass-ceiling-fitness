@@ -193,7 +193,7 @@ button:disabled { cursor: wait; opacity: .6; }
 .profile-nav .gear-button { border-radius: 50%; }
 .settings-menu-panel { border-radius: 24px; padding: 10px; }
 .settings-menu-item { border-radius: 16px; }
-.profile-nav .settings-menu-item { width: 100%; max-width: none; }
+.profile-nav .settings-menu-item { width: 100%; height: auto; min-height: 40px; max-width: none; overflow: visible; text-overflow: clip; white-space: normal; }
 .bubble-control { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
 .day-picker { max-width: 1040px; margin: 0 auto 24px; padding: 20px 24px; border: 1px solid #dfc5c8; border-radius: 28px; background: #ffffff; justify-content: space-between; }
 .day-picker label span { display: block; margin-top: 5px; color: var(--muted); font-size: 13px; }
